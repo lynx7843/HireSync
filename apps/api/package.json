@@ -14,7 +14,10 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@hiresync/shared": "*"
+    "@fastify/cors": "^11.3.0",
+    "@hiresync/shared": "*",
+    "fastify": "^5.10.0",
+    "fastify-type-provider-zod": "^7.0.0"
   },
   "devDependencies": {
     "tsx": "^4.23.0"
