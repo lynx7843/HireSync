@@ -13,6 +13,9 @@
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
+  "dependencies": {
+    "@hiresync/shared": "*"
+  },
   "devDependencies": {
     "tsx": "^4.23.0"
   }

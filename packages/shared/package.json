@@ -1,13 +1,11 @@
 {
-  "name": "shared",
+  "name": "@hiresync/shared",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
 }
