@@ -1,2 +1,0 @@
-# HireSync
-Candidate tracking application
