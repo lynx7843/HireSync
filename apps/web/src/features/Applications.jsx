@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Search, Calendar, MoreHorizontal, Plus } from "lucide-react";
 
 const applications = [
@@ -60,15 +61,15 @@ export default function HireSyncApplications() {
           HIRESYNC
         </div>
         <nav className="flex items-center gap-10">
-          <a href="#" className="text-[15px] font-medium text-neutral-500 hover:text-black">
+          <Link to="/dashboard" className="text-[15px] font-medium text-neutral-500 hover:text-black">
             Dashboard
-          </a>
-          <a href="#" className="text-[15px] font-medium text-neutral-500 hover:text-black">
+          </Link>
+          <Link to="/candidates" className="text-[15px] font-medium text-neutral-500 hover:text-black">
             Candidates
-          </a>
-          <a href="#" className="text-[15px] font-bold text-black underline underline-offset-8">
+          </Link>
+          <Link to="/applications" className="text-[15px] font-bold text-black underline underline-offset-8">
             Applications
-          </a>
+          </Link>
         </nav>
       </header>
 

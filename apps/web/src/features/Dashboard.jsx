@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const stats = [
   { label: "TOTAL CANDIDATES", value: "1,248" },
@@ -46,18 +47,18 @@ export default function HireSyncDashboard() {
           HIRESYNC
         </div>
         <nav className="flex items-center gap-10">
-          <a
-            href="#"
+          <Link
+            to="/dashboard"
             className="border-b-2 border-[#7A1315] pb-2 text-[15px] font-medium text-[#D0574F]"
           >
             Dashboard
-          </a>
-          <a href="#" className="text-[15px] font-medium text-neutral-300 hover:text-white">
+          </Link>
+          <Link to="/candidates" className="text-[15px] font-medium text-neutral-300 hover:text-white">
             Candidates
-          </a>
-          <a href="#" className="text-[15px] font-medium text-neutral-300 hover:text-white">
+          </Link>
+          <Link to="/applications" className="text-[15px] font-medium text-neutral-300 hover:text-white">
             Applications
-          </a>
+          </Link>
         </nav>
       </header>
 
@@ -126,9 +127,9 @@ export default function HireSyncDashboard() {
         <div className="border border-neutral-300 bg-white">
           <div className="flex items-center justify-between border-b border-neutral-300 px-6 py-5">
             <h2 className="text-2xl font-bold">Recent Applications</h2>
-            <a href="#" className="text-sm font-semibold text-[#7A1315] hover:underline">
+            <Link to="/applications" className="text-sm font-semibold text-[#7A1315] hover:underline">
               View All →
-            </a>
+            </Link>
           </div>
           <table className="w-full text-left">
             <thead>
