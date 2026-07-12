@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowLeft, User, ChevronsUpDown, Calendar, ChevronDown } from "lucide-react";
 
 export default function HireSyncApplicationDetail() {
@@ -28,13 +29,13 @@ export default function HireSyncApplicationDetail() {
 
       <main className="mx-auto max-w-[1600px] px-8 py-8">
         {/* Back link */}
-        <a
-          href="#"
-          className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-black"
+        <Link
+          to="/applications"
+          className="mb-6 inline-flex items-center gap-2 text-neutral-500 hover:text-black"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={18} />
           Back to Applications
-        </a>
+        </Link>
 
         {/* Header row */}
         <div className="mb-6 flex items-start justify-between border-b border-neutral-300 pb-6">

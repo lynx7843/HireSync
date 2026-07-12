@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, MapPin, Link2, ChevronRight, User } from "lucide-react";
 
 const applicationHistory = [
@@ -40,20 +41,20 @@ export default function HireSyncCandidateProfile() {
         <div className="text-[26px] font-extrabold tracking-wide text-[#7A1315]">
           HIRESYNC
         </div>
-        <a href="#" className="text-sm font-semibold text-[#7A1315] hover:underline">
+        <Link to="/candidates" className="text-sm font-semibold text-[#7A1315] hover:underline">
           Close Profile
-        </a>
+        </Link>
       </header>
 
       <main className="mx-auto max-w-[1600px] px-8 py-8">
         {/* Back link */}
-        <a
-          href="#"
+        <Link
+          to="/candidates"
           className="mb-6 inline-flex items-center gap-2 text-neutral-500 hover:text-black"
         >
           <ArrowLeft size={18} />
           Back to Candidates
-        </a>
+        </Link>
 
         {/* Profile card */}
         <div className="border-t-2 border-black bg-white">
@@ -76,7 +77,7 @@ export default function HireSyncCandidateProfile() {
                   </span>
                   <span className="flex items-center gap-2 text-[#7A1315]">
                     <Link2 size={16} />
-                    <a href="#" className="hover:underline">
+                    <a href="https://linkedin.com/in/eleanorvance" className="hover:underline">
                       linkedin.com/in/eleanorvance
                     </a>
                   </span>

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Search, ChevronDown, MoreVertical, Plus } from "lucide-react";
 
 const candidates = [
@@ -64,18 +65,18 @@ export default function HireSyncCandidates() {
           HIRESYNC
         </div>
         <nav className="flex items-center gap-10">
-          <a href="#" className="text-[15px] font-medium text-neutral-500 hover:text-black">
+          <Link to="/dashboard" className="text-[15px] font-medium text-neutral-500 hover:text-black">
             Dashboard
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/candidates"
             className="border-b-2 border-[#7A1315] pb-2 text-[15px] font-semibold text-[#7A1315]"
           >
             Candidates
-          </a>
-          <a href="#" className="text-[15px] font-medium text-neutral-500 hover:text-black">
+          </Link>
+          <Link to="/applications" className="text-[15px] font-medium text-neutral-500 hover:text-black">
             Applications
-          </a>
+          </Link>
         </nav>
         <div className="w-[110px]" />
       </header>
@@ -87,10 +88,13 @@ export default function HireSyncCandidates() {
             <h1 className="text-5xl font-extrabold tracking-tight">Candidates Directory</h1>
             <p className="mt-2 text-neutral-500">Manage and filter executive candidates.</p>
           </div>
-          <button className="flex items-center gap-2 bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]">
+          <Link
+            to="/candidates/new"
+            className="flex items-center gap-2 bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]"
+          >
             <Plus size={16} strokeWidth={3} />
             Add Candidate
-          </button>
+          </Link>
         </div>
 
         {/* Filter bar */}

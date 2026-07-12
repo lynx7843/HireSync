@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { User, IdCard, Link2, MapPin } from "lucide-react";
 
 function SectionHeader({ icon: Icon, title }) {
@@ -17,15 +18,15 @@ export default function HireSyncAddCandidate() {
       <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
         <div className="text-base font-bold tracking-wide">HIRESYNC</div>
         <nav className="flex items-center gap-8">
-          <a href="#" className="text-base text-black hover:opacity-70">
+          <Link to="/dashboard" className="text-base text-black hover:opacity-70">
             Dashboard
-          </a>
-          <a href="#" className="text-base font-semibold text-black hover:opacity-70">
+          </Link>
+          <Link to="/candidates" className="text-base font-semibold text-black hover:opacity-70">
             Candidates
-          </a>
-          <a href="#" className="text-base text-black hover:opacity-70">
+          </Link>
+          <Link to="/applications" className="text-base text-black hover:opacity-70">
             Applications
-          </a>
+          </Link>
         </nav>
         <div />
       </header>
