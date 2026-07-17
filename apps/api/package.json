@@ -5,7 +5,7 @@
   "scripts": {
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "dev": "fastify dev"
+    "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
   "author": "",
