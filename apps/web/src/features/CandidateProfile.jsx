@@ -1,39 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Mail, MapPin, Link2, ChevronRight, User } from "lucide-react";
-
-const applicationHistory = [
-  {
-    role: "VP of Platform Engineering",
-    reqId: "REQ-8902",
-    date: "Oct 12, 2023",
-    stage: "Final Interview",
-    dot: true,
-  },
-  {
-    role: "Director of Infrastructure",
-    reqId: "REQ-7451",
-    date: "Jan 05, 2022",
-    stage: "Archived",
-    dot: false,
-  },
-];
-
-function StageBadge({ stage, dot }) {
-  const isFinal = stage === "Final Interview";
-  return (
-    <span
-      className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium ${
-        isFinal ? "bg-[#7A1315] text-white" : "bg-neutral-200 text-neutral-800"
-      }`}
-    >
-      {dot && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
-      {stage}
-    </span>
-  );
-}
+import { useCandidate } from "../api/queries";
+import { formatDate } from "../lib/format";
+import StatusBadge from "../components/StatusBadge";
 
 export default function HireSyncCandidateProfile() {
+  const { id } = useParams();
+  const { data: candidate, isPending, isError, error } = useCandidate(id);
+
+  const latest = candidate?.applications[0];
+
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
       {/* Top Nav */}
@@ -56,112 +33,145 @@ export default function HireSyncCandidateProfile() {
           Back to Candidates
         </Link>
 
-        {/* Profile card */}
-        <div className="border-t-2 border-black bg-white">
-          <div className="flex items-start justify-between p-6 pb-6">
-            <div className="flex gap-6">
-              <div className="flex h-[140px] w-[140px] items-center justify-center bg-neutral-200">
-                <User size={64} className="text-neutral-400" strokeWidth={1.5} />
+        {isError && (
+          <div className="mb-8 border border-[#7A1315] bg-white p-6 text-[#7A1315]">
+            Failed to load candidate: {error.message}
+          </div>
+        )}
+
+        {isPending && (
+          <div className="border border-neutral-300 bg-white p-6 text-neutral-500">
+            Loading candidate…
+          </div>
+        )}
+
+        {candidate && (
+          <>
+            {/* Profile card */}
+            <div className="border-t-2 border-black bg-white">
+              <div className="flex items-start justify-between p-6 pb-6">
+                <div className="flex gap-6">
+                  <div className="flex h-[140px] w-[140px] items-center justify-center bg-neutral-200">
+                    <User size={64} className="text-neutral-400" strokeWidth={1.5} />
+                  </div>
+                  <div className="pt-1">
+                    <h1 className="text-3xl font-extrabold">{candidate.name}</h1>
+                    <p className="mt-1 text-lg text-neutral-500">
+                      {latest ? latest.job_title : "No applications yet"}
+                    </p>
+                    <div className="mt-4 flex items-center gap-6 text-neutral-700">
+                      <span className="flex items-center gap-2">
+                        <Mail size={16} className="text-neutral-400" />
+                        {candidate.email}
+                      </span>
+                      {candidate.location && (
+                        <span className="flex items-center gap-2">
+                          <MapPin size={16} className="text-neutral-400" />
+                          {candidate.location}
+                        </span>
+                      )}
+                      {candidate.linkedin_url && (
+                        <span className="flex items-center gap-2 text-[#7A1315]">
+                          <Link2 size={16} />
+                          <a href={candidate.linkedin_url} className="hover:underline" target="_blank" rel="noreferrer">
+                            {candidate.linkedin_url.replace(/^https?:\/\//, "")}
+                          </a>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <button className="bg-[#7A1315] px-6 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]">
+                    Schedule Interview
+                  </button>
+                  <button className="border border-black bg-white px-6 py-3 text-sm font-semibold hover:bg-neutral-100">
+                    Download Resume
+                  </button>
+                </div>
               </div>
-              <div className="pt-1">
-                <h1 className="text-3xl font-extrabold">Eleanor Vance</h1>
-                <p className="mt-1 text-lg text-neutral-500">Senior Director of Engineering</p>
-                <div className="mt-4 flex items-center gap-6 text-neutral-700">
-                  <span className="flex items-center gap-2">
-                    <Mail size={16} className="text-neutral-400" />
-                    e.vance@example.com
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <MapPin size={16} className="text-neutral-400" />
-                    San Francisco, CA
-                  </span>
-                  <span className="flex items-center gap-2 text-[#7A1315]">
-                    <Link2 size={16} />
-                    <a href="https://linkedin.com/in/eleanorvance" className="hover:underline">
-                      linkedin.com/in/eleanorvance
-                    </a>
-                  </span>
+
+              <div className="grid grid-cols-3 gap-6 border-t border-neutral-200 px-6 py-6">
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-neutral-500">
+                    APPLICATIONS
+                  </p>
+                  <p className="mt-2 text-2xl font-bold">{candidate.applications.length}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-neutral-500">
+                    MEMBER SINCE
+                  </p>
+                  <p className="mt-2 text-2xl font-bold">{formatDate(candidate.created_at)}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-neutral-500">
+                    CURRENT STATUS
+                  </p>
+                  {latest ? (
+                    <StatusBadge status={latest.status} className="mt-2" />
+                  ) : (
+                    <span className="mt-2 inline-block bg-neutral-200 px-3 py-1 text-sm font-medium text-neutral-800">
+                      No Applications
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <button className="bg-[#7A1315] px-6 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]">
-                Schedule Interview
-              </button>
-              <button className="border border-black bg-white px-6 py-3 text-sm font-semibold hover:bg-neutral-100">
-                Download Resume
-              </button>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-3 gap-6 border-t border-neutral-200 px-6 py-6">
-            <div>
-              <p className="text-xs font-semibold tracking-widest text-neutral-500">
-                EXPERIENCE
-              </p>
-              <p className="mt-2 text-2xl font-bold">12 Years</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold tracking-widest text-neutral-500">
-                NOTICE PERIOD
-              </p>
-              <p className="mt-2 text-2xl font-bold">4 Weeks</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold tracking-widest text-neutral-500">
-                CURRENT STATUS
-              </p>
-              <span className="mt-2 inline-block bg-neutral-200 px-3 py-1 text-sm font-medium text-neutral-800">
-                Active
-              </span>
-            </div>
-          </div>
-        </div>
+            {/* Application History */}
+            <div className="mt-10">
+              <h2 className="mb-2 inline-block border-b-2 border-black pb-3 text-2xl font-bold">
+                Application History
+              </h2>
 
-        {/* Application History */}
-        <div className="mt-10">
-          <h2 className="mb-2 inline-block border-b-2 border-black pb-3 text-2xl font-bold">
-            Application History
-          </h2>
-
-          <div className="mt-4 border border-neutral-300 bg-white">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-neutral-300">
-                  <th className="px-6 py-4 font-bold">Role</th>
-                  <th className="px-6 py-4 font-bold">Req ID</th>
-                  <th className="px-6 py-4 font-bold">Date Applied</th>
-                  <th className="px-6 py-4 font-bold">Stage</th>
-                  <th className="px-6 py-4 text-right font-bold">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {applicationHistory.map((a, i) => (
-                  <tr
-                    key={a.reqId}
-                    className={
-                      i !== applicationHistory.length - 1
-                        ? "border-b border-neutral-200"
-                        : ""
-                    }
-                  >
-                    <td className="px-6 py-5 font-medium">{a.role}</td>
-                    <td className="px-6 py-5 text-neutral-600">{a.reqId}</td>
-                    <td className="px-6 py-5 text-neutral-600">{a.date}</td>
-                    <td className="px-6 py-5">
-                      <StageBadge stage={a.stage} dot={a.dot} />
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <button className="text-neutral-400 hover:text-black">
-                        <ChevronRight size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              <div className="mt-4 border border-neutral-300 bg-white">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-neutral-300">
+                      <th className="px-6 py-4 font-bold">Role</th>
+                      <th className="px-6 py-4 font-bold">Company</th>
+                      <th className="px-6 py-4 font-bold">Date Applied</th>
+                      <th className="px-6 py-4 font-bold">Stage</th>
+                      <th className="px-6 py-4 text-right font-bold">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidate.applications.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-6 text-center text-neutral-500">
+                          No applications on file.
+                        </td>
+                      </tr>
+                    )}
+                    {candidate.applications.map((a, i) => (
+                      <tr
+                        key={a.id}
+                        className={
+                          i !== candidate.applications.length - 1
+                            ? "border-b border-neutral-200"
+                            : ""
+                        }
+                      >
+                        <td className="px-6 py-5 font-medium">{a.job_title}</td>
+                        <td className="px-6 py-5 text-neutral-600">{a.company}</td>
+                        <td className="px-6 py-5 text-neutral-600">{formatDate(a.applied_at)}</td>
+                        <td className="px-6 py-5">
+                          <StatusBadge status={a.status} />
+                        </td>
+                        <td className="px-6 py-5 text-right">
+                          <Link to={`/applications/${a.id}`} className="text-neutral-400 hover:text-black">
+                            <ChevronRight size={18} className="inline" />
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

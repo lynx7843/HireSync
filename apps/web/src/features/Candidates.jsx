@@ -1,62 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, ChevronDown, MoreVertical, Plus } from "lucide-react";
+import { Search, ChevronDown, MoreVertical, Plus, User } from "lucide-react";
+import { useCandidates } from "../api/queries";
+import { initialsFromName } from "../lib/format";
+import StatusBadge from "../components/StatusBadge";
 
-const candidates = [
-  {
-    initials: "EJ",
-    name: "Elena Jenkins",
-    email: "elena.j@example.com",
-    role: "VP Engineering",
-    location: "San Francisco, CA",
-    status: "Interviewing",
-  },
-  {
-    initials: "MR",
-    name: "Marcus Reid",
-    email: "mreid.exec@domain.co",
-    role: "Director of Product",
-    location: "New York, NY",
-    status: "Offer Extended",
-  },
-  {
-    initials: "SL",
-    name: "Sarah Lin",
-    email: "slin.design@creative.net",
-    role: "Chief Design Officer",
-    location: "London, UK",
-    status: "Applied",
-  },
-  {
-    initials: "DT",
-    name: "David Torres",
-    email: "dtorres@finance.com",
-    role: "CFO",
-    location: "Chicago, IL",
-    status: "Screening",
-  },
-  {
-    initials: "AK",
-    name: "Aisha Khan",
-    email: "akhan.ops@logistics.org",
-    role: "VP Operations",
-    location: "Austin, TX",
-    status: "Interviewing",
-  },
-];
-
-function StatusBadge({ status }) {
-  const base = "inline-block px-3 py-1 text-sm font-medium";
-  const styles = {
-    Interviewing: "bg-neutral-200 text-neutral-800",
-    "Offer Extended": "bg-[#7A1315] text-white",
-    Applied: "bg-neutral-200 text-neutral-800",
-    Screening: "bg-neutral-200 text-neutral-800",
-  };
-  return <span className={`${base} ${styles[status] || ""}`}>{status}</span>;
-}
+const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
 
 export default function HireSyncCandidates() {
+  const [searchInput, setSearchInput] = useState("");
+  const [statusInput, setStatusInput] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  const [filters, setFilters] = useState({ search: "", status: "", location: "" });
+
+  const { data: candidates, isPending, isError, error } = useCandidates(filters);
+
+  const applyFilters = () => {
+    setFilters({ search: searchInput, status: statusInput, location: locationInput });
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
       {/* Top Nav */}
@@ -110,6 +72,9 @@ export default function HireSyncCandidates() {
                 <input
                   type="text"
                   placeholder="Enter name..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && applyFilters()}
                   className="w-full border border-neutral-300 py-3 pl-9 pr-3 text-sm outline-none focus:border-neutral-500"
                 />
               </div>
@@ -117,12 +82,17 @@ export default function HireSyncCandidates() {
             <div className="flex-1">
               <label className="mb-2 block text-sm font-semibold">Status</label>
               <div className="relative">
-                <select className="w-full appearance-none border border-neutral-300 py-3 px-3 text-sm outline-none focus:border-neutral-500">
-                  <option>All Statuses</option>
-                  <option>Applied</option>
-                  <option>Screening</option>
-                  <option>Interviewing</option>
-                  <option>Offer Extended</option>
+                <select
+                  value={statusInput}
+                  onChange={(e) => setStatusInput(e.target.value)}
+                  className="w-full appearance-none border border-neutral-300 py-3 px-3 text-sm outline-none focus:border-neutral-500"
+                >
+                  <option value="">All Statuses</option>
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown
                   size={16}
@@ -135,14 +105,26 @@ export default function HireSyncCandidates() {
               <input
                 type="text"
                 placeholder="City or Region"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
                 className="w-full border border-neutral-300 py-3 px-3 text-sm outline-none focus:border-neutral-500"
               />
             </div>
-            <button className="border border-black bg-white px-8 py-3 text-sm font-semibold hover:bg-neutral-100">
+            <button
+              onClick={applyFilters}
+              className="border border-black bg-white px-8 py-3 text-sm font-semibold hover:bg-neutral-100"
+            >
               Filter
             </button>
           </div>
         </div>
+
+        {isError && (
+          <div className="mb-8 border border-[#7A1315] bg-white p-6 text-[#7A1315]">
+            Failed to load candidates: {error.message}
+          </div>
+        )}
 
         {/* Candidates table */}
         <div className="border border-neutral-300 bg-white">
@@ -157,34 +139,54 @@ export default function HireSyncCandidates() {
               </tr>
             </thead>
             <tbody>
-              {candidates.map((c, i) => (
-                <tr
-                  key={c.email}
-                  className={i !== candidates.length - 1 ? "border-b border-neutral-200" : ""}
-                >
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center bg-neutral-200 text-sm font-bold text-neutral-700">
-                        {c.initials}
-                      </div>
-                      <div>
-                        <p className="font-bold">{c.name}</p>
-                        <p className="text-sm text-neutral-500">{c.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 font-medium">{c.role}</td>
-                  <td className="px-6 py-5 text-neutral-600">{c.location}</td>
-                  <td className="px-6 py-5">
-                    <StatusBadge status={c.status} />
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <button className="text-neutral-500 hover:text-black">
-                      <MoreVertical size={18} />
-                    </button>
+              {isPending && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center text-neutral-500">
+                    Loading candidates…
                   </td>
                 </tr>
-              ))}
+              )}
+              {!isPending && candidates.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center text-neutral-500">
+                    No candidates found.
+                  </td>
+                </tr>
+              )}
+              {!isPending &&
+                candidates.map((c, i) => {
+                  const latest = c.applications[0];
+                  return (
+                    <tr
+                      key={c.id}
+                      className={i !== candidates.length - 1 ? "border-b border-neutral-200" : ""}
+                    >
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-10 w-10 items-center justify-center bg-neutral-200 text-sm font-bold text-neutral-700">
+                            {c.name ? initialsFromName(c.name) : <User size={18} className="text-neutral-400" />}
+                          </div>
+                          <div>
+                            <Link to={`/candidates/${c.id}`} className="font-bold hover:underline">
+                              {c.name}
+                            </Link>
+                            <p className="text-sm text-neutral-500">{c.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 font-medium">{latest?.job_title || "—"}</td>
+                      <td className="px-6 py-5 text-neutral-600">{c.location || "—"}</td>
+                      <td className="px-6 py-5">
+                        {latest ? <StatusBadge status={latest.status} /> : <span className="text-neutral-400">—</span>}
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <Link to={`/candidates/${c.id}`} className="text-neutral-500 hover:text-black">
+                          <MoreVertical size={18} />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

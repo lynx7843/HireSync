@@ -1,9 +1,12 @@
 import { z } from 'zod';
-import { server } from '../server.js';
+import type { FastifyInstance } from 'fastify';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
 
-export async function applicationRoutes() {
-  server.get('/applications', {
+export async function applicationRoutes(server: FastifyInstance) {
+  const app = server.withTypeProvider<ZodTypeProvider>();
+
+  app.get('/applications', {
     schema: {
       querystring: z.object({
         search: z.string().optional(),
@@ -44,6 +47,25 @@ export async function applicationRoutes() {
 
     return reply.send(applications);
   });
-  
+
+  app.get('/applications/:id', {
+    schema: {
+      params: z.object({ id: z.string().uuid() })
+    }
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    const application = await prisma.application.findUnique({
+      where: { id },
+      include: { candidate: true }
+    });
+
+    if (!application) {
+      return reply.status(404).send({ error: 'Application not found' });
+    }
+
+    return reply.send(application);
+  });
+
   // (You will also add your POST, PATCH, and DELETE application routes here)
 }

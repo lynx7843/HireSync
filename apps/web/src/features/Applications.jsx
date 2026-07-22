@@ -1,58 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Calendar, MoreHorizontal, Plus } from "lucide-react";
+import { Search, MoreHorizontal, Plus } from "lucide-react";
+import { useApplications } from "../api/queries";
+import { formatDate } from "../lib/format";
+import StatusBadge from "../components/StatusBadge";
 
-const applications = [
-  {
-    candidate: "Sarah Jenkins",
-    job: "Senior Frontend Engineer",
-    company: "TechNova Inc.",
-    date: "Oct 12, 2023",
-    status: "Interview",
-  },
-  {
-    candidate: "Michael Chen",
-    job: "Product Manager",
-    company: "Global Synergies",
-    date: "Oct 10, 2023",
-    status: "Screening",
-  },
-  {
-    candidate: "Elena Rodriguez",
-    job: "UX Designer",
-    company: "Creative Bloc",
-    date: "Oct 08, 2023",
-    status: "Rejected",
-  },
-  {
-    candidate: "David Kim",
-    job: "Data Scientist",
-    company: "Quantile Analytics",
-    date: "Oct 05, 2023",
-    status: "Applied",
-  },
-  {
-    candidate: "Aisha Patel",
-    job: "DevOps Engineer",
-    company: "CloudScale",
-    date: "Oct 01, 2023",
-    status: "Offered",
-  },
-];
-
-function StatusBadge({ status }) {
-  const base = "inline-block px-3 py-1 text-xs font-semibold tracking-wide";
-  const styles = {
-    Interview: "bg-white text-neutral-800 border border-neutral-400",
-    Screening: "bg-neutral-200 text-neutral-800",
-    Rejected: "bg-[#7A1315] text-white",
-    Applied: "bg-black text-white",
-    Offered: "bg-white text-neutral-800 border border-neutral-400",
-  };
-  return <span className={`${base} ${styles[status] || ""}`}>{status.toUpperCase()}</span>;
-}
+const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
 
 export default function HireSyncApplications() {
+  const [searchInput, setSearchInput] = useState("");
+  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
+
+  const { data: applications, isPending, isError, error } = useApplications({ search, status });
+
   return (
     <div className="min-h-screen bg-white font-sans text-black">
       {/* Top Nav */}
@@ -96,36 +57,37 @@ export default function HireSyncApplications() {
                 <input
                   type="text"
                   placeholder="Search by job, company, or candidate..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && setSearch(searchInput)}
+                  onBlur={() => setSearch(searchInput)}
                   className="w-full border border-neutral-300 py-3 pl-9 pr-3 text-sm outline-none focus:border-neutral-500"
                 />
               </div>
             </div>
             <div className="flex-1">
               <label className="mb-2 block text-sm font-semibold">Status</label>
-              <select className="w-full border border-neutral-300 py-3 px-3 text-sm outline-none focus:border-neutral-500">
-                <option>All Statuses</option>
-                <option>Applied</option>
-                <option>Screening</option>
-                <option>Interview</option>
-                <option>Offered</option>
-                <option>Rejected</option>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full border border-neutral-300 py-3 px-3 text-sm outline-none focus:border-neutral-500"
+              >
+                <option value="">All Statuses</option>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </option>
+                ))}
               </select>
-            </div>
-            <div className="flex-1">
-              <label className="mb-2 block text-sm font-semibold">Applied Date</label>
-              <div className="relative">
-                <Calendar
-                  size={16}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
-                />
-                <input
-                  type="date"
-                  className="w-full border border-neutral-300 py-3 pl-9 pr-3 text-sm text-neutral-500 outline-none focus:border-neutral-500"
-                />
-              </div>
             </div>
           </div>
         </div>
+
+        {isError && (
+          <div className="mb-8 border border-[#7A1315] bg-white p-6 text-[#7A1315]">
+            Failed to load applications: {error.message}
+          </div>
+        )}
 
         {/* Applications table */}
         <div className="border-t-2 border-black bg-white">
@@ -141,57 +103,56 @@ export default function HireSyncApplications() {
               </tr>
             </thead>
             <tbody>
-              {applications.map((a, i) => (
-                <tr
-                  key={a.candidate}
-                  className={i !== applications.length - 1 ? "border-b border-neutral-200" : ""}
-                >
-                  <td className="px-6 py-5 font-bold text-[#7A1315]">{a.candidate}</td>
-                  <td className="px-6 py-5">{a.job}</td>
-                  <td className="px-6 py-5 text-neutral-700">{a.company}</td>
-                  <td className="px-6 py-5 text-neutral-700">{a.date}</td>
-                  <td className="px-6 py-5">
-                    <StatusBadge status={a.status} />
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <button className="text-neutral-500 hover:text-black">
-                      <MoreHorizontal size={18} />
-                    </button>
+              {isPending && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-neutral-500">
+                    Loading applications…
                   </td>
                 </tr>
-              ))}
+              )}
+              {!isPending && applications.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-neutral-500">
+                    No applications found.
+                  </td>
+                </tr>
+              )}
+              {!isPending &&
+                applications.map((a, i) => (
+                  <tr
+                    key={a.id}
+                    className={i !== applications.length - 1 ? "border-b border-neutral-200" : ""}
+                  >
+                    <td className="px-6 py-5 font-bold text-[#7A1315]">
+                      <Link to={`/candidates/${a.candidate_id}`} className="hover:underline">
+                        {a.candidate.name}
+                      </Link>
+                    </td>
+                    <td className="px-6 py-5">{a.job_title}</td>
+                    <td className="px-6 py-5 text-neutral-700">{a.company}</td>
+                    <td className="px-6 py-5 text-neutral-700">{formatDate(a.applied_at)}</td>
+                    <td className="px-6 py-5">
+                      <StatusBadge status={a.status} />
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <Link to={`/applications/${a.id}`} className="text-neutral-500 hover:text-black">
+                        <MoreHorizontal size={18} />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
 
-          {/* Footer: results + pagination */}
-          <div className="flex items-center justify-between border-t border-neutral-300 px-6 py-4">
-            <p className="text-sm text-neutral-600">
-              Showing <span className="font-bold text-black">1</span> to{" "}
-              <span className="font-bold text-black">5</span> of{" "}
-              <span className="font-bold text-black">97</span> results
-            </p>
-            <div className="flex items-center gap-2">
-              <button className="flex h-9 w-9 items-center justify-center border border-neutral-300 text-neutral-500 hover:bg-neutral-50">
-                ‹
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center bg-black text-sm font-semibold text-white">
-                1
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center border border-neutral-300 text-sm hover:bg-neutral-50">
-                2
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center border border-neutral-300 text-sm hover:bg-neutral-50">
-                3
-              </button>
-              <span className="px-1 text-neutral-400">…</span>
-              <button className="flex h-9 w-9 items-center justify-center border border-neutral-300 text-sm hover:bg-neutral-50">
-                10
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center border border-neutral-300 text-neutral-500 hover:bg-neutral-50">
-                ›
-              </button>
+          {/* Footer: results count */}
+          {!isPending && (
+            <div className="flex items-center justify-between border-t border-neutral-300 px-6 py-4">
+              <p className="text-sm text-neutral-600">
+                Showing <span className="font-bold text-black">{applications.length}</span> of{" "}
+                <span className="font-bold text-black">{applications.length}</span> results
+              </p>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>

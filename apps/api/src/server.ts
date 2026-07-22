@@ -9,6 +9,7 @@ import {
 import { prisma } from './db.js';
 import { applicationRoutes } from './routes/applications.js';
 import { dashboardRoutes } from './routes/dashboard.js';
+import { candidateRoutes } from './routes/candidates.js';
 
 // Create the Fastify instance and enable the Zod type provider
 const server = Fastify({
@@ -24,6 +25,7 @@ server.setSerializerCompiler(serializerCompiler);
 // Register routes
 server.register(applicationRoutes, { prefix: '/api' });
 server.register(dashboardRoutes, { prefix: '/api' });
+server.register(candidateRoutes, { prefix: '/api' });
 
 // Global Error Handler requirement
 server.setErrorHandler((error, request, reply) => {
