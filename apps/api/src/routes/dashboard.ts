@@ -1,7 +1,7 @@
-import { server } from '../server.js';
+import type { FastifyInstance } from 'fastify';
 import { prisma } from '../db.js';
 
-export async function dashboardRoutes() {
+export async function dashboardRoutes(server: FastifyInstance) {
   server.get('/dashboard', async (request, reply) => {
     // 1. Total counts
     const totalCandidates = await prisma.candidate.count({ where: { deleted_at: null } });
