@@ -14,7 +14,7 @@ export default function HireSyncApplicationDetail() {
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
       {/* Top Nav */}
-      <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-8 py-5">
+      <header className="flex items-center gap-12 border-b border-neutral-200 bg-white px-8 py-5">
         <div className="text-[26px] font-extrabold tracking-wide text-[#7A1315]">
           HIRESYNC
         </div>
@@ -32,7 +32,6 @@ export default function HireSyncApplicationDetail() {
             Applications
           </Link>
         </nav>
-        <div className="w-[70px]" />
       </header>
 
       <main className="mx-auto max-w-[1600px] px-8 py-8">

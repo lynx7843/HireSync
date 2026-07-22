@@ -15,7 +15,7 @@ export default function HireSyncAddCandidate() {
   return (
     <div className="min-h-screen bg-white font-sans text-black">
       {/* Top Nav */}
-      <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+      <header className="flex items-center gap-10 border-b border-neutral-200 px-6 py-4">
         <div className="text-base font-bold tracking-wide">HIRESYNC</div>
         <nav className="flex items-center gap-8">
           <Link to="/dashboard" className="text-base text-black hover:opacity-70">
@@ -28,7 +28,6 @@ export default function HireSyncAddCandidate() {
             Applications
           </Link>
         </nav>
-        <div />
       </header>
 
       <main className="mx-auto max-w-3xl px-8 py-8">
