@@ -1,10 +1,36 @@
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
 
 export async function candidateRoutes(server: FastifyInstance) {
   const app = server.withTypeProvider<ZodTypeProvider>();
+
+  app.post('/candidates', {
+    schema: {
+      body: z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        location: z.string().optional(),
+        linkedin_url: z.string().optional(),
+        notes: z.string().optional(),
+      })
+    }
+  }, async (request, reply) => {
+    try {
+      const candidate = await prisma.candidate.create({
+        data: request.body,
+      });
+      return reply.status(201).send(candidate);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        return reply.status(409).send({ error: 'A candidate with this email already exists' });
+      }
+      throw err;
+    }
+  });
 
   app.get('/candidates', {
     schema: {

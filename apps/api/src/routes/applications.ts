@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
@@ -67,5 +68,52 @@ export async function applicationRoutes(server: FastifyInstance) {
     return reply.send(application);
   });
 
-  // (You will also add your POST, PATCH, and DELETE application routes here)
+  app.patch('/applications/:id', {
+    schema: {
+      params: z.object({ id: z.string().uuid() }),
+      body: z.object({
+        job_title: z.string().min(1).optional(),
+        company: z.string().min(1).optional(),
+        status: z.enum(['applied', 'screening', 'interview', 'offer', 'hired', 'rejected']).optional(),
+        applied_at: z.coerce.date().optional(),
+        salary_expectation: z.number().int().nullable().optional(),
+        source: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+      })
+    }
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    try {
+      const application = await prisma.application.update({
+        where: { id },
+        data: request.body,
+        include: { candidate: true }
+      });
+      return reply.send(application);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        return reply.status(404).send({ error: 'Application not found' });
+      }
+      throw err;
+    }
+  });
+
+  app.delete('/applications/:id', {
+    schema: {
+      params: z.object({ id: z.string().uuid() })
+    }
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    try {
+      await prisma.application.delete({ where: { id } });
+      return reply.status(204).send();
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        return reply.status(404).send({ error: 'Application not found' });
+      }
+      throw err;
+    }
+  });
 }

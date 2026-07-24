@@ -1,10 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getDashboard,
   getCandidates,
   getCandidate,
   getApplications,
   getApplication,
+  createCandidate,
+  updateApplication,
+  deleteApplication,
 } from "./client";
 
 export function useDashboard() {
@@ -38,5 +41,39 @@ export function useApplication(id) {
     queryKey: ["application", id],
     queryFn: () => getApplication(id),
     enabled: Boolean(id),
+  });
+}
+
+export function useCreateCandidate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => createCandidate(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateApplication(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => updateApplication(id, data),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["application", id], updated);
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useDeleteApplication(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteApplication(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
   });
 }
