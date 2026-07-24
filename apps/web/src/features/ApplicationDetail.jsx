@@ -1,15 +1,63 @@
-import React from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, ChevronsUpDown, Calendar } from "lucide-react";
-import { useApplication } from "../api/queries";
-import { formatDate, formatDateTime } from "../lib/format";
+import { useApplication, useUpdateApplication, useDeleteApplication } from "../api/queries";
+import { formatDateTime } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 
 const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
 
+function toDateInputValue(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
 export default function HireSyncApplicationDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: application, isPending, isError, error } = useApplication(id);
+  const updateApplication = useUpdateApplication(id);
+  const deleteApplication = useDeleteApplication(id);
+
+  const [edit, setEdit] = useState(null);
+
+  // Sync local edit state once the application loads.
+  useEffect(() => {
+    if (application) {
+      setEdit({
+        job_title: application.job_title,
+        company: application.company,
+        applied_at: toDateInputValue(application.applied_at),
+        source: application.source || "",
+        status: application.status,
+        notes: application.notes || "",
+      });
+    }
+  }, [application]);
+
+  const setField = (field) => (e) =>
+    setEdit((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const handleSave = () => {
+    if (!edit) return;
+    updateApplication.mutate({
+      job_title: edit.job_title,
+      company: edit.company,
+      applied_at: edit.applied_at,
+      status: edit.status,
+      source: edit.source.trim() ? edit.source.trim() : null,
+      notes: edit.notes.trim() ? edit.notes.trim() : null,
+    });
+  };
+
+  const handleArchive = () => {
+    if (!window.confirm("Archive this application? This action cannot be undone.")) return;
+    deleteApplication.mutate(undefined, {
+      onSuccess: () => navigate("/applications"),
+    });
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
@@ -56,7 +104,7 @@ export default function HireSyncApplicationDetail() {
           </div>
         )}
 
-        {application && (
+        {application && edit && (
           <>
             {/* Header row */}
             <div className="mb-6 flex items-start justify-between border-b border-neutral-300 pb-6">
@@ -106,7 +154,8 @@ export default function HireSyncApplicationDetail() {
                       <label className="mb-2 block text-sm font-semibold">Job Title</label>
                       <input
                         type="text"
-                        defaultValue={application.job_title}
+                        value={edit.job_title}
+                        onChange={setField("job_title")}
                         className="w-full border border-neutral-300 px-4 py-3 outline-none focus:border-neutral-500"
                       />
                     </div>
@@ -114,7 +163,8 @@ export default function HireSyncApplicationDetail() {
                       <label className="mb-2 block text-sm font-semibold">Company</label>
                       <input
                         type="text"
-                        defaultValue={application.company}
+                        value={edit.company}
+                        onChange={setField("company")}
                         className="w-full border border-neutral-300 px-4 py-3 outline-none focus:border-neutral-500"
                       />
                     </div>
@@ -122,8 +172,9 @@ export default function HireSyncApplicationDetail() {
                       <label className="mb-2 block text-sm font-semibold">Date Applied</label>
                       <div className="relative">
                         <input
-                          type="text"
-                          defaultValue={formatDate(application.applied_at)}
+                          type="date"
+                          value={edit.applied_at}
+                          onChange={setField("applied_at")}
                           className="w-full border border-neutral-300 px-4 py-3 pr-10 outline-none focus:border-neutral-500"
                         />
                         <Calendar
@@ -136,7 +187,8 @@ export default function HireSyncApplicationDetail() {
                       <label className="mb-2 block text-sm font-semibold">Source</label>
                       <input
                         type="text"
-                        defaultValue={application.source || ""}
+                        value={edit.source}
+                        onChange={setField("source")}
                         placeholder="Not specified"
                         className="w-full border border-neutral-300 px-4 py-3 outline-none focus:border-neutral-500"
                       />
@@ -151,7 +203,8 @@ export default function HireSyncApplicationDetail() {
                   </h2>
                   <textarea
                     rows={7}
-                    defaultValue={application.notes || ""}
+                    value={edit.notes}
+                    onChange={setField("notes")}
                     placeholder="Add confidential notes regarding this application..."
                     className="w-full resize-y border border-neutral-300 px-4 py-3 text-neutral-700 outline-none focus:border-neutral-500"
                   />
@@ -168,7 +221,8 @@ export default function HireSyncApplicationDetail() {
                   <label className="mb-2 block text-sm font-semibold">Current Stage</label>
                   <div className="relative">
                     <select
-                      defaultValue={application.status}
+                      value={edit.status}
+                      onChange={setField("status")}
                       className="w-full appearance-none border border-neutral-300 px-4 py-3 outline-none focus:border-neutral-500"
                     >
                       {STATUS_OPTIONS.map((s) => (
@@ -189,11 +243,34 @@ export default function HireSyncApplicationDetail() {
 
                 {/* Actions */}
                 <div className="border-t-2 border-black bg-white p-6">
-                  <button className="mb-3 w-full bg-[#7A1315] py-3 text-sm font-bold tracking-wide text-white hover:bg-[#5F0F11]">
-                    SAVE CHANGES
+                  {updateApplication.isError && (
+                    <p className="mb-3 text-sm text-[#7A1315]">
+                      Save failed: {updateApplication.error.message}
+                    </p>
+                  )}
+                  {deleteApplication.isError && (
+                    <p className="mb-3 text-sm text-[#7A1315]">
+                      Archive failed: {deleteApplication.error.message}
+                    </p>
+                  )}
+                  {updateApplication.isSuccess && !updateApplication.isPending && (
+                    <p className="mb-3 text-sm text-green-700">Changes saved.</p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={updateApplication.isPending}
+                    className="mb-3 w-full bg-[#7A1315] py-3 text-sm font-bold tracking-wide text-white hover:bg-[#5F0F11] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {updateApplication.isPending ? "SAVING…" : "SAVE CHANGES"}
                   </button>
-                  <button className="w-full border border-black py-3 text-sm font-bold tracking-wide hover:bg-neutral-100">
-                    ARCHIVE APPLICATION
+                  <button
+                    type="button"
+                    onClick={handleArchive}
+                    disabled={deleteApplication.isPending}
+                    className="w-full border border-black py-3 text-sm font-bold tracking-wide hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {deleteApplication.isPending ? "ARCHIVING…" : "ARCHIVE APPLICATION"}
                   </button>
                 </div>
               </div>

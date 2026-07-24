@@ -8,6 +8,26 @@ async function request(path) {
   return res.json();
 }
 
+async function mutate(path, method, body) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let message = `Request to ${path} failed with status ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data?.error) message = data.error;
+    } catch {
+      // response had no JSON body
+    }
+    throw new Error(message);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
 function buildQuery(params) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params || {})) {
@@ -37,4 +57,16 @@ export function getApplications(filters) {
 
 export function getApplication(id) {
   return request(`/applications/${id}`);
+}
+
+export function createCandidate(data) {
+  return mutate("/candidates", "POST", data);
+}
+
+export function updateApplication(id, data) {
+  return mutate(`/applications/${id}`, "PATCH", data);
+}
+
+export function deleteApplication(id) {
+  return mutate(`/applications/${id}`, "DELETE");
 }
