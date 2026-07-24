@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, MoreHorizontal, Plus } from "lucide-react";
 import { useApplications } from "../api/queries";
@@ -11,6 +11,12 @@ export default function HireSyncApplications() {
   const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+
+  // Debounce the search box so we don't hit the API on every keystroke.
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const { data: applications, isPending, isError, error } = useApplications({ search, status });
 
@@ -59,8 +65,6 @@ export default function HireSyncApplications() {
                   placeholder="Search by job, company, or candidate..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && setSearch(searchInput)}
-                  onBlur={() => setSearch(searchInput)}
                   className="w-full border border-neutral-300 py-3 pl-9 pr-3 text-sm outline-none focus:border-neutral-500"
                 />
               </div>

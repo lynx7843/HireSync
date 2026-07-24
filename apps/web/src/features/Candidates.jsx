@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, ChevronDown, MoreVertical, Plus, User } from "lucide-react";
 import { useCandidates } from "../api/queries";
@@ -11,13 +11,26 @@ export default function HireSyncCandidates() {
   const [searchInput, setSearchInput] = useState("");
   const [statusInput, setStatusInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
-  const [filters, setFilters] = useState({ search: "", status: "", location: "" });
 
-  const { data: candidates, isPending, isError, error } = useCandidates(filters);
+  // Debounce the free-text inputs so we don't hit the API on every keystroke.
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedLocation, setDebouncedLocation] = useState("");
 
-  const applyFilters = () => {
-    setFilters({ search: searchInput, status: statusInput, location: locationInput });
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedLocation(locationInput), 300);
+    return () => clearTimeout(timer);
+  }, [locationInput]);
+
+  const { data: candidates, isPending, isError, error } = useCandidates({
+    search: debouncedSearch,
+    status: statusInput,
+    location: debouncedLocation,
+  });
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
@@ -73,7 +86,6 @@ export default function HireSyncCandidates() {
                   placeholder="Enter name..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && applyFilters()}
                   className="w-full border border-neutral-300 py-3 pl-9 pr-3 text-sm outline-none focus:border-neutral-500"
                 />
               </div>
@@ -106,16 +118,9 @@ export default function HireSyncCandidates() {
                 placeholder="City or Region"
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
                 className="w-full border border-neutral-300 py-3 px-3 text-sm outline-none focus:border-neutral-500"
               />
             </div>
-            <button
-              onClick={applyFilters}
-              className="border border-black bg-white px-8 py-3 text-sm font-semibold hover:bg-neutral-100"
-            >
-              Filter
-            </button>
           </div>
         </div>
 
