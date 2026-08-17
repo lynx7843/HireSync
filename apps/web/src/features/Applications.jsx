@@ -114,7 +114,7 @@ export default function HireSyncApplications() {
                   </td>
                 </tr>
               )}
-              {!isPending && applications.length === 0 && (
+              {!isPending && !isError && applications.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-6 py-10 text-center text-neutral-500">
                     No applications found.
@@ -122,6 +122,7 @@ export default function HireSyncApplications() {
                 </tr>
               )}
               {!isPending &&
+                !isError &&
                 applications.map((a, i) => (
                   <tr
                     key={a.id}
@@ -149,7 +150,7 @@ export default function HireSyncApplications() {
           </table>
 
           {/* Footer: results count */}
-          {!isPending && (
+          {!isPending && !isError && (
             <div className="flex items-center justify-between border-t border-neutral-300 px-6 py-4">
               <p className="text-sm text-neutral-600">
                 Showing <span className="font-bold text-black">{applications.length}</span> of{" "}

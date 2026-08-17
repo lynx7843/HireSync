@@ -65,9 +65,9 @@ export default function HireSyncDashboard() {
           </div>
         )}
 
-        {isPending ? (
+        {isPending || isError ? (
           <div className="mb-8 border border-neutral-300 bg-white p-6 text-neutral-500">
-            Loading dashboard…
+            {isPending ? "Loading dashboard…" : null}
           </div>
         ) : (
           <>

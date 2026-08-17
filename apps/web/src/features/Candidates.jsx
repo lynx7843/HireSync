@@ -150,7 +150,7 @@ export default function HireSyncCandidates() {
                   </td>
                 </tr>
               )}
-              {!isPending && candidates.length === 0 && (
+              {!isPending && !isError && candidates.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center text-neutral-500">
                     No candidates found.
@@ -158,6 +158,7 @@ export default function HireSyncCandidates() {
                 </tr>
               )}
               {!isPending &&
+                !isError &&
                 candidates.map((c, i) => {
                   const latest = c.applications[0];
                   return (
