@@ -1,9 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [pg_trgm]
 }
 
 enum ApplicationStatus {
@@ -29,10 +31,13 @@ model Candidate {
 
   applications Application[]
 
-  // Indexes for cross-entity search fields
-  @@index([name])
-  @@index([email])
-  @@index([location])
+  // Cross-entity search fields. These are queried with `contains` +
+  // `mode: 'insensitive'` (ILIKE '%term%'), which a B-tree index cannot serve
+  // because of the leading wildcard — hence trigram GIN indexes.
+  // The @unique on email keeps its own B-tree for uniqueness/exact lookups.
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([email(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([location(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model Application {
@@ -50,9 +55,10 @@ model Application {
 
   candidate Candidate @relation(fields: [candidate_id], references: [id])
 
-  // Indexes for application search and filtering fields
-  @@index([job_title])
-  @@index([company])
+  // Search fields: ILIKE '%term%', so trigram GIN (see Candidate above).
+  @@index([job_title(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([company(ops: raw("gin_trgm_ops"))], type: Gin)
+  // Filter fields: equality / range, which B-tree serves correctly.
   @@index([status])
   @@index([applied_at])
 }
