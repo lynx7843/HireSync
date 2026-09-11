@@ -5,7 +5,8 @@
   "scripts": {
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "auth:hash": "tsx scripts/hash-password.ts"
   },
   "keywords": [],
   "author": "",
