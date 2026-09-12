@@ -52,7 +52,7 @@ export async function candidateRoutes(server: FastifyInstance) {
       where: {
         deleted_at: null,
         ...(location ? { location: { contains: location, mode: 'insensitive' } } : {}),
-        ...(status ? { applications: { some: { status } } } : {}),
+        ...(status ? { applications: { some: { status, deleted_at: null } } } : {}),
         ...(search ? {
           OR: [
             { name: { contains: search, mode: 'insensitive' } },
@@ -63,6 +63,7 @@ export async function candidateRoutes(server: FastifyInstance) {
       },
       include: {
         applications: {
+          where: { deleted_at: null },
           orderBy: { created_at: 'desc' },
           take: 1,
           select: { job_title: true, status: true }
@@ -84,7 +85,7 @@ export async function candidateRoutes(server: FastifyInstance) {
     const candidate = await prisma.candidate.findFirst({
       where: { id, deleted_at: null },
       include: {
-        applications: { orderBy: { applied_at: 'desc' } }
+        applications: { where: { deleted_at: null }, orderBy: { applied_at: 'desc' } }
       }
     });
 

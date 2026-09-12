@@ -5,11 +5,12 @@ export async function dashboardRoutes(server: FastifyInstance) {
   server.get('/dashboard', async (request, reply) => {
     // 1. Total counts
     const totalCandidates = await prisma.candidate.count({ where: { deleted_at: null } });
-    const totalApplications = await prisma.application.count();
+    const totalApplications = await prisma.application.count({ where: { deleted_at: null } });
 
     // 2. Status distribution
     const statusCounts = await prisma.application.groupBy({
       by: ['status'],
+      where: { deleted_at: null },
       _count: { status: true }
     });
 
@@ -18,6 +19,7 @@ export async function dashboardRoutes(server: FastifyInstance) {
     const hiredThisMonth = await prisma.application.count({
       where: { 
         status: 'hired',
+        deleted_at: null,
         updated_at: { gte: startOfMonth }
       }
     });
@@ -31,6 +33,7 @@ export async function dashboardRoutes(server: FastifyInstance) {
     // 5. Latest applications
     const latestApplications = await prisma.application.findMany({
       take: 5,
+      where: { deleted_at: null },
       orderBy: { created_at: 'desc' },
       include: { candidate: { select: { name: true } } }
     });

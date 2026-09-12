@@ -52,12 +52,16 @@ model Application {
   notes              String?
   created_at         DateTime          @default(now())
   updated_at         DateTime          @updatedAt
+  deleted_at         DateTime?         // Soft delete, same model as Candidate
 
   candidate Candidate @relation(fields: [candidate_id], references: [id])
 
   // Search fields: ILIKE '%term%', so trigram GIN (see Candidate above).
   @@index([job_title(ops: raw("gin_trgm_ops"))], type: Gin)
   @@index([company(ops: raw("gin_trgm_ops"))], type: Gin)
+  // source is OR'd into the same search; without its own index the whole OR
+  // falls back to a sequential scan.
+  @@index([source(ops: raw("gin_trgm_ops"))], type: Gin)
   // Filter fields: equality / range, which B-tree serves correctly.
   @@index([status])
   @@index([applied_at])
