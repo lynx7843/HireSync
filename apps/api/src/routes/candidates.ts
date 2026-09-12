@@ -14,7 +14,12 @@ export async function candidateRoutes(server: FastifyInstance) {
         email: z.string().email(),
         phone: z.string().optional(),
         location: z.string().optional(),
-        linkedin_url: z.string().optional(),
+        // Rendered into an <a href>, so only real https:// URLs are accepted;
+        // this rejects javascript:, data: and other schemes.
+        linkedin_url: z
+          .string()
+          .url({ protocol: /^https$/, message: 'linkedin_url must be a valid https:// URL' })
+          .optional(),
         notes: z.string().optional(),
       })
     }
