@@ -180,6 +180,15 @@ function slugFor(name: string, index: number): string {
 async function main() {
   console.log('Seeding database...')
 
+  // Clear out rows from any previous seed run so re-seeding doesn't fail on the
+  // unique email constraint. Scoped to the seed's own emails so candidates added
+  // through the app are left alone. Applications have no cascade, so go first.
+  const seedEmails = NAMES.map((name, i) => `${slugFor(name, i + 1)}@example.com`)
+  await prisma.$transaction([
+    prisma.application.deleteMany({ where: { candidate: { email: { in: seedEmails } } } }),
+    prisma.candidate.deleteMany({ where: { email: { in: seedEmails } } }),
+  ])
+
   // Two candidates are soft-deleted so the dashboard's `deleted_at: null`
   // filter is actually exercised.
   const SOFT_DELETED = new Set([7, 19])
