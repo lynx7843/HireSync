@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
 import { 
   serializerCompiler, 
   validatorCompiler, 
@@ -49,6 +50,13 @@ server.register(cors, {
   allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
+// Cap requests per client IP across every route so the API can't be scraped or
+// hammered. Registered before the route plugins so it covers all of them.
+server.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute',
+});
+
 // Register Zod compilers
 server.setValidatorCompiler(validatorCompiler);
 server.setSerializerCompiler(serializerCompiler);
@@ -71,7 +79,12 @@ server.setErrorHandler((error, request, reply) => {
       details: error.validation
     });
   }
-  
+
+  // Let rate-limit rejections through as 429 instead of masking them as 500.
+  if ((error as { statusCode?: number }).statusCode === 429) {
+    return reply.status(429).send(error);
+  }
+
   server.log.error(error);
   reply.status(500).send({ error: 'Internal Server Error' });
 });
