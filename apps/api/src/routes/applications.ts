@@ -19,6 +19,7 @@ export async function applicationRoutes(server: FastifyInstance) {
 
     const applications = await prisma.application.findMany({
       where: {
+        deleted_at: null,
         ...(status ? { status } : {}),
         ...(search ? {
           OR: [
@@ -56,8 +57,8 @@ export async function applicationRoutes(server: FastifyInstance) {
   }, async (request, reply) => {
     const { id } = request.params;
 
-    const application = await prisma.application.findUnique({
-      where: { id },
+    const application = await prisma.application.findFirst({
+      where: { id, deleted_at: null },
       include: { candidate: true }
     });
 
@@ -86,7 +87,7 @@ export async function applicationRoutes(server: FastifyInstance) {
 
     try {
       const application = await prisma.application.update({
-        where: { id },
+        where: { id, deleted_at: null },
         data: request.body,
         include: { candidate: true }
       });
@@ -107,7 +108,11 @@ export async function applicationRoutes(server: FastifyInstance) {
     const { id } = request.params;
 
     try {
-      await prisma.application.delete({ where: { id } });
+      // Soft delete, matching candidates. Already-archived rows 404 like missing ones.
+      await prisma.application.update({
+        where: { id, deleted_at: null },
+        data: { deleted_at: new Date() },
+      });
       return reply.status(204).send();
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
