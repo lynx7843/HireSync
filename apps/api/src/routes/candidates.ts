@@ -66,7 +66,7 @@ export async function candidateRoutes(server: FastifyInstance) {
 
   app.get('/candidates/:id', {
     schema: {
-      params: z.object({ id: z.string().uuid() })
+      params: z.object({ id: z.uuid() })
     }
   }, async (request, reply) => {
     const { id } = request.params;

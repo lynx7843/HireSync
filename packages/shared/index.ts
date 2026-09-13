@@ -16,9 +16,9 @@ export const ApplicationStatusEnum = z.enum([
 // Base Models (Matches Database)
 // ==========================================
 export const CandidateSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email format"),
+  email: z.email("Invalid email format"),
   phone: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
   // Rendered into an <a href>, so only real https:// URLs are accepted;
@@ -34,8 +34,8 @@ export const CandidateSchema = z.object({
 });
 
 export const ApplicationSchema = z.object({
-  id: z.string().uuid(),
-  candidate_id: z.string().uuid(),
+  id: z.uuid(),
+  candidate_id: z.uuid(),
   job_title: z.string().min(1, "Job title is required"),
   company: z.string().min(1, "Company is required"),
   status: ApplicationStatusEnum,

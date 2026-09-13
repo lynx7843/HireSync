@@ -34,7 +34,7 @@ export async function authRoutes(server: FastifyInstance) {
   app.post('/auth/login', {
     schema: {
       body: z.object({
-        email: z.string().email(),
+        email: z.email(),
         password: z.string().min(1),
       })
     }
