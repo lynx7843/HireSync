@@ -53,7 +53,7 @@ export async function applicationRoutes(server: FastifyInstance) {
 
   app.get('/applications/:id', {
     schema: {
-      params: z.object({ id: z.string().uuid() })
+      params: z.object({ id: z.uuid() })
     }
   }, async (request, reply) => {
     const { id } = request.params;
@@ -72,7 +72,7 @@ export async function applicationRoutes(server: FastifyInstance) {
 
   app.patch('/applications/:id', {
     schema: {
-      params: z.object({ id: z.string().uuid() }),
+      params: z.object({ id: z.uuid() }),
       body: UpdateApplicationSchema
     }
   }, async (request, reply) => {
@@ -95,7 +95,7 @@ export async function applicationRoutes(server: FastifyInstance) {
 
   app.delete('/applications/:id', {
     schema: {
-      params: z.object({ id: z.string().uuid() })
+      params: z.object({ id: z.uuid() })
     }
   }, async (request, reply) => {
     const { id } = request.params;
