@@ -13,7 +13,7 @@
     "dev:web": "npm run dev --workspace=apps/web",
     "db:migrate": "npm run db:migrate --workspace=apps/api",
     "db:seed": "npm run db:seed --workspace=apps/api",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test --workspaces --if-present"
   },
   "repository": {
     "type": "git",
