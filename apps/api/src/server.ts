@@ -8,7 +8,7 @@ import {
   ZodTypeProvider,
   hasZodFastifySchemaValidationErrors
 } from 'fastify-type-provider-zod';
-import { prisma } from './db.js';
+import { pool, prisma } from './db.js';
 import { usingPlaintextPassword } from './auth.js';
 import { registerAuthGuard } from './plugins/require-auth.js';
 import { authRoutes } from './routes/auth.js';
@@ -88,6 +88,34 @@ server.setErrorHandler((error, request, reply) => {
   server.log.error(error);
   reply.status(500).send({ error: 'Internal Server Error' });
 });
+
+// Release database connections once the HTTP server has stopped accepting and
+// finished in-flight requests.
+server.addHook('onClose', async () => {
+  await prisma.$disconnect();
+  await pool.end();
+});
+
+// Graceful shutdown on Ctrl+C / container stop. A second signal forces exit in
+// case a request or connection hangs.
+let shuttingDown = false;
+const shutdown = async (signal: NodeJS.Signals) => {
+  if (shuttingDown) {
+    server.log.warn(`Received ${signal} again, forcing exit.`);
+    process.exit(1);
+  }
+  shuttingDown = true;
+  server.log.info(`Received ${signal}, shutting down.`);
+  try {
+    await server.close();
+    process.exit(0);
+  } catch (err) {
+    server.log.error(err);
+    process.exit(1);
+  }
+};
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 // Bind to loopback only by default: the API must not be reachable from the LAN
 // or a VPN tunnel. Set HOST=0.0.0.0 explicitly, and only when running behind a
