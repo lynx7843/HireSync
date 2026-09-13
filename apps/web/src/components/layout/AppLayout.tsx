@@ -5,11 +5,13 @@ export default function AppLayout() {
   const navigation = useNavigation();
   const [isNavigating, setIsNavigating] = useState(false);
 
+  if (navigation.state === 'loading' && !isNavigating) {
+    setIsNavigating(true);
+  }
+
   // Implement the requested artificial delay
   useEffect(() => {
-    if (navigation.state === 'loading') {
-      setIsNavigating(true);
-    } else if (navigation.state === 'idle' && isNavigating) {
+    if (navigation.state === 'idle' && isNavigating) {
       const timer = setTimeout(() => setIsNavigating(false), 1500); // 1.5 second buffer
       return () => clearTimeout(timer);
     }
