@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # The API imports @prisma/client, which must be generated from the schema.
+      # prisma.config.ts requires DATABASE_URL to be set; nothing connects to it.
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+
+      - run: npm test
