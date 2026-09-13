@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
+import { ApplicationStatusEnum, UpdateApplicationSchema } from '@hiresync/shared';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
@@ -11,7 +12,7 @@ export async function applicationRoutes(server: FastifyInstance) {
     schema: {
       querystring: z.object({
         search: z.string().optional(),
-        status: z.enum(['applied', 'screening', 'interview', 'offer', 'hired', 'rejected']).optional(),
+        status: ApplicationStatusEnum.optional(),
       })
     }
   }, async (request, reply) => {
@@ -72,15 +73,7 @@ export async function applicationRoutes(server: FastifyInstance) {
   app.patch('/applications/:id', {
     schema: {
       params: z.object({ id: z.string().uuid() }),
-      body: z.object({
-        job_title: z.string().min(1).optional(),
-        company: z.string().min(1).optional(),
-        status: z.enum(['applied', 'screening', 'interview', 'offer', 'hired', 'rejected']).optional(),
-        applied_at: z.coerce.date().optional(),
-        salary_expectation: z.number().int().nullable().optional(),
-        source: z.string().nullable().optional(),
-        notes: z.string().nullable().optional(),
-      })
+      body: UpdateApplicationSchema
     }
   }, async (request, reply) => {
     const { id } = request.params;
