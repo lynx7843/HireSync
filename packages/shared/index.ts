@@ -21,7 +21,13 @@ export const CandidateSchema = z.object({
   email: z.string().email("Invalid email format"),
   phone: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
-  linkedin_url: z.string().url("Invalid URL format").nullable().optional(),
+  // Rendered into an <a href>, so only real https:// URLs are accepted;
+  // this rejects javascript:, data: and other schemes.
+  linkedin_url: z
+    .string()
+    .url({ protocol: /^https$/, message: 'linkedin_url must be a valid https:// URL' })
+    .nullable()
+    .optional(),
   notes: z.string().nullable().optional(),
   created_at: z.date().or(z.string()),
   updated_at: z.date().or(z.string()),
@@ -53,13 +59,17 @@ export const CreateCandidateSchema = CandidateSchema.omit({
 
 export const UpdateCandidateSchema = CreateCandidateSchema.partial();
 
-export const CreateApplicationSchema = ApplicationSchema.omit({ 
-  id: true, 
-  created_at: true, 
-  updated_at: true 
+export const CreateApplicationSchema = ApplicationSchema.omit({
+  id: true,
+  created_at: true,
+  updated_at: true
+}).extend({
+  // Date inputs send "YYYY-MM-DD"; coerce so Prisma receives a Date.
+  applied_at: z.coerce.date(),
 });
 
-export const UpdateApplicationSchema = CreateApplicationSchema.partial();
+// An application can't be moved to a different candidate.
+export const UpdateApplicationSchema = CreateApplicationSchema.omit({ candidate_id: true }).partial();
 
 // ==========================================
 // Inferred TypeScript Types

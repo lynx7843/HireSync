@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
+import { ApplicationStatusEnum, CreateCandidateSchema } from '@hiresync/shared';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
@@ -9,19 +10,7 @@ export async function candidateRoutes(server: FastifyInstance) {
 
   app.post('/candidates', {
     schema: {
-      body: z.object({
-        name: z.string().min(1),
-        email: z.string().email(),
-        phone: z.string().optional(),
-        location: z.string().optional(),
-        // Rendered into an <a href>, so only real https:// URLs are accepted;
-        // this rejects javascript:, data: and other schemes.
-        linkedin_url: z
-          .string()
-          .url({ protocol: /^https$/, message: 'linkedin_url must be a valid https:// URL' })
-          .optional(),
-        notes: z.string().optional(),
-      })
+      body: CreateCandidateSchema
     }
   }, async (request, reply) => {
     try {
@@ -41,7 +30,7 @@ export async function candidateRoutes(server: FastifyInstance) {
     schema: {
       querystring: z.object({
         search: z.string().optional(),
-        status: z.enum(['applied', 'screening', 'interview', 'offer', 'hired', 'rejected']).optional(),
+        status: ApplicationStatusEnum.optional(),
         location: z.string().optional(),
       })
     }
