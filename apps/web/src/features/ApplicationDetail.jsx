@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, ChevronsUpDown, Calendar } from "lucide-react";
 import { useApplication, useUpdateApplication, useDeleteApplication } from "../api/queries";
@@ -22,20 +22,23 @@ export default function HireSyncApplicationDetail() {
   const deleteApplication = useDeleteApplication(id);
 
   const [edit, setEdit] = useState(null);
+  // Tracks which application's data `edit` was seeded from, so a refetch of
+  // the same application (e.g. React Query's window-focus refetch) never
+  // re-seeds mid-edit and wipes unsaved changes. Only navigating to a
+  // different application should reset the form.
+  const [seededId, setSeededId] = useState(null);
 
-  // Sync local edit state once the application loads.
-  useEffect(() => {
-    if (application) {
-      setEdit({
-        job_title: application.job_title,
-        company: application.company,
-        applied_at: toDateInputValue(application.applied_at),
-        source: application.source || "",
-        status: application.status,
-        notes: application.notes || "",
-      });
-    }
-  }, [application]);
+  if (application && application.id !== seededId) {
+    setSeededId(application.id);
+    setEdit({
+      job_title: application.job_title,
+      company: application.company,
+      applied_at: toDateInputValue(application.applied_at),
+      source: application.source || "",
+      status: application.status,
+      notes: application.notes || "",
+    });
+  }
 
   const setField = (field) => (e) =>
     setEdit((prev) => ({ ...prev, [field]: e.target.value }));
