@@ -78,7 +78,9 @@ export async function candidateRoutes(server: FastifyInstance) {
     const candidate = await prisma.candidate.findFirst({
       where: { id, deleted_at: null },
       include: {
-        applications: { where: { deleted_at: null }, orderBy: { applied_at: 'desc' } }
+        // Matches the ordering used for the list's included application below,
+        // so the "current status" agrees between the directory and this page.
+        applications: { where: { deleted_at: null }, orderBy: { created_at: 'desc' } }
       }
     });
 
