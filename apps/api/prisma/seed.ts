@@ -164,6 +164,22 @@ function appliedAtFor(status: Status): Date {
   return daysAgo(int(min, max))
 }
 
+/**
+ * When the status was last set. An application starts at `applied`, so that
+ * transition is the application itself; every later stage happened at some
+ * point between applying and today. Seeding this explicitly matters: left to
+ * the column default every seeded row would read as changed just now, and the
+ * dashboard's "Hired this month" tile would count the entire back catalogue.
+ */
+function statusChangedAtFor(status: Status, appliedAt: Date): Date {
+  if (status === 'applied') return appliedAt
+  const span = TODAY.getTime() - appliedAt.getTime()
+  if (span <= 0) return appliedAt
+  // Land in the back half of the window so the move reads as having taken a
+  // while, while staying inside the current month for the recent hires above.
+  return new Date(appliedAt.getTime() + span * (0.5 + rng() * 0.45))
+}
+
 function salaryFor(base: number): number | null {
   // ~1 in 6 applications has no stated expectation.
   if (rng() < 0.17) return null
@@ -209,6 +225,7 @@ async function main() {
 
     const applications = Array.from({ length: appCounts[i] }).map(() => {
       const status = statusPool[cursor++]
+      const appliedAt = appliedAtFor(status)
 
       // Avoid giving one candidate the same role twice.
       let role = pick(ROLES)
@@ -219,7 +236,8 @@ async function main() {
         job_title: role[0],
         company: pick(COMPANIES),
         status,
-        applied_at: appliedAtFor(status),
+        applied_at: appliedAt,
+        status_changed_at: statusChangedAtFor(status, appliedAt),
         salary_expectation: salaryFor(role[1]),
         source: rng() < 0.12 ? null : pick(SOURCES),
         notes: rng() < 0.65 ? null : pick(NOTES),

@@ -19,12 +19,14 @@ export async function dashboardRoutes(server: FastifyInstance) {
     });
 
     // 3. Hired this month
+    // Counted on status_changed_at, not updated_at: updated_at moves on any
+    // edit, so editing an old hire's notes used to count it as a hire today.
     const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const hiredThisMonth = await prisma.application.count({
       where: { 
         ...visibleApplications,
         status: 'hired',
-        updated_at: { gte: startOfMonth }
+        status_changed_at: { gte: startOfMonth }
       }
     });
 

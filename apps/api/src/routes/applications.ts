@@ -81,11 +81,30 @@ export async function applicationRoutes(server: FastifyInstance) {
   }, async (request, reply) => {
     const { id } = request.params;
 
+    const nextStatus = request.body.status;
+
     try {
-      const application = await prisma.application.update({
-        where: { id, deleted_at: null },
-        data: request.body,
-        include: { candidate: true }
+      const application = await prisma.$transaction(async (tx) => {
+        // Read the current status so only a real transition stamps the clock.
+        // Re-saving the same status, or editing notes on an old hire, must not
+        // look like a fresh hire to the dashboard.
+        const current = await tx.application.findFirst({
+          where: { id, deleted_at: null },
+          select: { status: true }
+        });
+
+        // A missing row leaves `current` null and the update below throws
+        // P2025, which the handler already turns into a 404.
+        return tx.application.update({
+          where: { id, deleted_at: null },
+          data: {
+            ...request.body,
+            ...(nextStatus !== undefined && nextStatus !== current?.status
+              ? { status_changed_at: new Date() }
+              : {})
+          },
+          include: { candidate: true }
+        });
       });
       return reply.send(application);
     } catch (err) {
