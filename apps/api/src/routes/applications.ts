@@ -21,6 +21,9 @@ export async function applicationRoutes(server: FastifyInstance) {
     const applications = await prisma.application.findMany({
       where: {
         deleted_at: null,
+        // A soft-deleted candidate's applications go with them: without this
+        // the "deleted" person is still listed by name.
+        candidate: { deleted_at: null },
         ...(status ? { status } : {}),
         ...(search ? {
           OR: [
