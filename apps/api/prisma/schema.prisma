@@ -47,6 +47,9 @@ model Application {
   company            String
   status             ApplicationStatus @default(applied)
   applied_at         DateTime          @db.Date
+  // When `status` last changed. updated_at moves on any edit, so it cannot
+  // answer "when was this hired?" - see the dashboard's hiredThisMonth.
+  status_changed_at  DateTime          @default(now())
   salary_expectation Int?
   source             String?
   notes              String?
@@ -65,4 +68,5 @@ model Application {
   // Filter fields: equality / range, which B-tree serves correctly.
   @@index([status])
   @@index([applied_at])
+  @@index([status_changed_at])
 }
