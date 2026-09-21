@@ -52,7 +52,11 @@ export async function candidateRoutes(server: FastifyInstance) {
       },
       include: {
         applications: {
-          where: { deleted_at: null },
+          // The list renders this one row as the candidate's role and status.
+          // When filtering by status, narrow it the same way the `some` filter
+          // above does, so the badge shown is the application that matched
+          // rather than an unrelated newer one reading "Applied".
+          where: { deleted_at: null, ...(status ? { status } : {}) },
           orderBy: { created_at: 'desc' },
           take: 1,
           select: { job_title: true, status: true }
