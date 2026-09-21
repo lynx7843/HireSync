@@ -6,6 +6,10 @@ export function formatDate(value) {
     month: "short",
     day: "2-digit",
     year: "numeric",
+    // applied_at is a DATE column serialized as UTC midnight; without this,
+    // converting to the viewer's local zone shows the previous day for
+    // anyone west of UTC. Format in UTC so the calendar date never shifts.
+    timeZone: "UTC",
   });
 }
 
