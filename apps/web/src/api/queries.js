@@ -6,6 +6,7 @@ import {
   getApplications,
   getApplication,
   createCandidate,
+  createApplication,
   updateApplication,
   deleteApplication,
 } from "./client";
@@ -50,6 +51,17 @@ export function useCreateCandidate() {
     mutationFn: (data) => createCandidate(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useCreateApplication() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => createApplication(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });

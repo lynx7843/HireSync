@@ -44,10 +44,13 @@ export default function HireSyncApplications() {
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between">
           <h1 className="text-4xl font-extrabold tracking-tight">Applications</h1>
-          <button className="flex items-center gap-2 bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]">
+          <Link
+            to="/applications/new"
+            className="flex items-center gap-2 bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]"
+          >
             <Plus size={16} strokeWidth={3} />
             New Application
-          </button>
+          </Link>
         </div>
 
         {/* Filter bar */}
