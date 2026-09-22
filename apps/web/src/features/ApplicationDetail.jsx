@@ -40,8 +40,10 @@ export default function HireSyncApplicationDetail() {
     });
   }
 
-  const setField = (field) => (e) =>
+  const setField = (field) => (e) => {
+    updateApplication.reset();
     setEdit((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
   const handleSave = () => {
     if (!edit) return;
