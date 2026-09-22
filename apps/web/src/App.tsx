@@ -7,6 +7,7 @@ import HireSyncCandidates from './features/Candidates';
 import HireSyncAddCandidate from './features/AddCandidate';
 import HireSyncCandidateProfile from './features/CandidateProfile';
 import HireSyncApplications from './features/Applications';
+import HireSyncAddApplication from './features/AddApplication';
 import HireSyncApplicationDetail from './features/ApplicationDetail';
 
 const router = createBrowserRouter([
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
       
       // Applications Domain
       { path: "applications", element: <HireSyncApplications /> },
+      { path: "applications/new", element: <HireSyncAddApplication /> },
       { path: "applications/:id", element: <HireSyncApplicationDetail /> },
     ]
   }

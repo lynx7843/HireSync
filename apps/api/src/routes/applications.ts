@@ -1,12 +1,31 @@
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
-import { ApplicationStatusEnum, UpdateApplicationSchema } from '@hiresync/shared';
+import { ApplicationStatusEnum, CreateApplicationSchema, UpdateApplicationSchema } from '@hiresync/shared';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
 
 export async function applicationRoutes(server: FastifyInstance) {
   const app = server.withTypeProvider<ZodTypeProvider>();
+
+  app.post('/applications', {
+    schema: {
+      body: CreateApplicationSchema
+    }
+  }, async (request, reply) => {
+    try {
+      const application = await prisma.application.create({
+        data: request.body,
+        include: { candidate: true }
+      });
+      return reply.status(201).send(application);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+        return reply.status(404).send({ error: 'Candidate not found' });
+      }
+      throw err;
+    }
+  });
 
   app.get('/applications', {
     schema: {
