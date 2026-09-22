@@ -80,9 +80,11 @@ server.setErrorHandler((error, request, reply) => {
     });
   }
 
-  // Let rate-limit rejections through as 429 instead of masking them as 500.
-  if ((error as { statusCode?: number }).statusCode === 429) {
-    return reply.status(429).send(error);
+  // Honour a 4xx status the error already carries (e.g. rate-limit
+  // rejections at 429) instead of masking it as a 500.
+  const statusCode = (error as { statusCode?: number }).statusCode;
+  if (statusCode !== undefined && statusCode >= 400 && statusCode < 500) {
+    return reply.status(statusCode).send(error);
   }
 
   server.log.error(error);
