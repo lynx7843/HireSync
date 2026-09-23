@@ -54,7 +54,11 @@ export default function HireSyncDashboard() {
             <h1 className="text-5xl font-extrabold tracking-tight">Dashboard Overview</h1>
             <p className="mt-2 text-neutral-500">High-level metrics and pipeline status.</p>
           </div>
-          <button className="bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]">
+          <button
+            disabled
+            title="Coming soon"
+            className="cursor-not-allowed bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white opacity-50"
+          >
             Generate Report
           </button>
         </div>
