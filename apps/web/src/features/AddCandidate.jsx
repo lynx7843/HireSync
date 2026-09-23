@@ -23,6 +23,7 @@ export default function HireSyncAddCandidate() {
     phone: "",
     location: "",
     linkedin: "",
+    portfolio: "",
     notes: "",
   });
 
@@ -38,6 +39,7 @@ export default function HireSyncAddCandidate() {
     if (form.phone.trim()) payload.phone = form.phone.trim();
     if (form.location.trim()) payload.location = form.location.trim();
     if (form.linkedin.trim()) payload.linkedin_url = `https://${form.linkedin.trim()}`;
+    if (form.portfolio.trim()) payload.portfolio_url = `https://${form.portfolio.trim()}`;
     if (form.notes.trim()) payload.notes = form.notes.trim();
 
     createCandidate.mutate(payload, {
@@ -182,6 +184,21 @@ export default function HireSyncAddCandidate() {
                 placeholder="linkedin.com/in/janedoe"
                 value={form.linkedin}
                 onChange={setField("linkedin")}
+                className="w-full border border-neutral-300 px-4 py-3 text-neutral-700 outline-none focus:border-neutral-500"
+              />
+            </div>
+          </div>
+          <div className="mb-6">
+            <label className="mb-2 block text-sm">Portfolio / Website</label>
+            <div className="flex">
+              <span className="flex items-center border border-r-0 border-neutral-300 px-4 text-neutral-500">
+                https://
+              </span>
+              <input
+                type="text"
+                placeholder="janedoe.design"
+                value={form.portfolio}
+                onChange={setField("portfolio")}
                 className="w-full border border-neutral-300 px-4 py-3 text-neutral-700 outline-none focus:border-neutral-500"
               />
             </div>
