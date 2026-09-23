@@ -30,6 +30,10 @@ export default function HireSyncAddCandidate() {
   const setField = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
+  // The input's "https://" prefix label is cosmetic; users regularly paste a
+  // full URL anyway, so strip any existing scheme before re-prefixing.
+  const withHttps = (value) => `https://${value.replace(/^https?:\/\//i, "")}`;
+
   const handleSave = () => {
     const name = `${form.firstName} ${form.lastName}`.trim();
     const payload = {
@@ -38,8 +42,8 @@ export default function HireSyncAddCandidate() {
     };
     if (form.phone.trim()) payload.phone = form.phone.trim();
     if (form.location.trim()) payload.location = form.location.trim();
-    if (form.linkedin.trim()) payload.linkedin_url = `https://${form.linkedin.trim()}`;
-    if (form.portfolio.trim()) payload.portfolio_url = `https://${form.portfolio.trim()}`;
+    if (form.linkedin.trim()) payload.linkedin_url = withHttps(form.linkedin.trim());
+    if (form.portfolio.trim()) payload.portfolio_url = withHttps(form.portfolio.trim());
     if (form.notes.trim()) payload.notes = form.notes.trim();
 
     createCandidate.mutate(payload, {
