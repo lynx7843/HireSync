@@ -34,7 +34,8 @@ export default function HireSyncAddCandidate() {
   // full URL anyway, so strip any existing scheme before re-prefixing.
   const withHttps = (value) => `https://${value.replace(/^https?:\/\//i, "")}`;
 
-  const handleSave = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const name = `${form.firstName} ${form.lastName}`.trim();
     const payload = {
       name,
@@ -51,11 +52,7 @@ export default function HireSyncAddCandidate() {
     });
   };
 
-  const canSave =
-    form.firstName.trim() &&
-    form.lastName.trim() &&
-    form.email.trim() &&
-    !createCandidate.isPending;
+  const canSave = form.firstName.trim() && form.email.trim() && !createCandidate.isPending;
 
   return (
     <div className="min-h-screen bg-white font-sans text-black">
@@ -76,6 +73,7 @@ export default function HireSyncAddCandidate() {
       </header>
 
       <main className="mx-auto max-w-3xl px-8 py-8">
+      <form onSubmit={handleSubmit}>
         {/* Header row */}
         <div className="mb-0 flex items-start justify-between">
           <div>
@@ -91,8 +89,7 @@ export default function HireSyncAddCandidate() {
               Cancel
             </button>
             <button
-              type="button"
-              onClick={handleSave}
+              type="submit"
               disabled={!canSave}
               className="px-2 py-2 text-sm font-medium hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -116,6 +113,7 @@ export default function HireSyncAddCandidate() {
               <label className="mb-2 block text-sm">First Name *</label>
               <input
                 type="text"
+                required
                 placeholder="Jane"
                 value={form.firstName}
                 onChange={setField("firstName")}
@@ -123,10 +121,10 @@ export default function HireSyncAddCandidate() {
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm">Last Name *</label>
+              <label className="mb-2 block text-sm">Last Name</label>
               <input
                 type="text"
-                placeholder="Doe"
+                placeholder="Doe (optional)"
                 value={form.lastName}
                 onChange={setField("lastName")}
                 className="w-full border border-neutral-300 px-4 py-3 text-neutral-700 outline-none focus:border-neutral-500"
@@ -141,6 +139,7 @@ export default function HireSyncAddCandidate() {
               <label className="mb-2 block text-sm">Email Address *</label>
               <input
                 type="email"
+                required
                 placeholder="jane.doe@example.com"
                 value={form.email}
                 onChange={setField("email")}
@@ -218,6 +217,7 @@ export default function HireSyncAddCandidate() {
             />
           </div>
         </div>
+      </form>
       </main>
     </div>
   );
