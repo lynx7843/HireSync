@@ -32,45 +32,54 @@ export async function applicationRoutes(server: FastifyInstance) {
       querystring: z.object({
         search: z.string().optional(),
         status: ApplicationStatusEnum.optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        pageSize: z.coerce.number().int().min(1).max(100).default(25),
       })
     }
   }, async (request, reply) => {
-    const { search, status } = request.query;
+    const { search, status, page, pageSize } = request.query;
 
-    const applications = await prisma.application.findMany({
-      where: {
-        deleted_at: null,
-        // A soft-deleted candidate's applications go with them: without this
-        // the "deleted" person is still listed by name.
-        candidate: { deleted_at: null },
-        ...(status ? { status } : {}),
-        ...(search ? {
-          OR: [
-            // Search Application fields
-            { job_title: { contains: search, mode: 'insensitive' } },
-            { company: { contains: search, mode: 'insensitive' } },
-            { source: { contains: search, mode: 'insensitive' } },
-            // JOIN Search Candidate fields
-            { candidate: {
-                OR: [
-                  { name: { contains: search, mode: 'insensitive' } },
-                  { email: { contains: search, mode: 'insensitive' } },
-                  { location: { contains: search, mode: 'insensitive' } }
-                ]
-              }
+    const where = {
+      deleted_at: null,
+      // A soft-deleted candidate's applications go with them: without this
+      // the "deleted" person is still listed by name.
+      candidate: { deleted_at: null },
+      ...(status ? { status } : {}),
+      ...(search ? {
+        OR: [
+          // Search Application fields
+          { job_title: { contains: search, mode: 'insensitive' as const } },
+          { company: { contains: search, mode: 'insensitive' as const } },
+          { source: { contains: search, mode: 'insensitive' as const } },
+          // JOIN Search Candidate fields
+          { candidate: {
+              OR: [
+                { name: { contains: search, mode: 'insensitive' as const } },
+                { email: { contains: search, mode: 'insensitive' as const } },
+                { location: { contains: search, mode: 'insensitive' as const } }
+              ]
             }
-          ]
-        } : {})
-      },
-      include: {
-        candidate: {
-          select: { name: true, email: true } // Only pull what frontend needs
-        }
-      },
-      orderBy: { created_at: 'desc' }
-    });
+          }
+        ]
+      } : {})
+    };
 
-    return reply.send(applications);
+    const [applications, total] = await prisma.$transaction([
+      prisma.application.findMany({
+        where,
+        include: {
+          candidate: {
+            select: { name: true, email: true } // Only pull what frontend needs
+          }
+        },
+        orderBy: { created_at: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.application.count({ where }),
+    ]);
+
+    return reply.send({ data: applications, total, page, pageSize });
   });
 
   app.get('/applications/:id', {
