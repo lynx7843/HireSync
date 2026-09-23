@@ -28,6 +28,13 @@ export const CandidateSchema = z.object({
     .url({ protocol: /^https$/, message: 'linkedin_url must be a valid https:// URL' })
     .nullable()
     .optional(),
+  // Rendered into an <a href>, so only real https:// URLs are accepted;
+  // this rejects javascript:, data: and other schemes.
+  portfolio_url: z
+    .string()
+    .url({ protocol: /^https$/, message: 'portfolio_url must be a valid https:// URL' })
+    .nullable()
+    .optional(),
   notes: z.string().nullable().optional(),
   created_at: z.date().or(z.string()),
   updated_at: z.date().or(z.string()),

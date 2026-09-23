@@ -39,6 +39,7 @@ export default function HireSyncAddCandidate() {
     if (form.phone.trim()) payload.phone = form.phone.trim();
     if (form.location.trim()) payload.location = form.location.trim();
     if (form.linkedin.trim()) payload.linkedin_url = `https://${form.linkedin.trim()}`;
+    if (form.portfolio.trim()) payload.portfolio_url = `https://${form.portfolio.trim()}`;
     if (form.notes.trim()) payload.notes = form.notes.trim();
 
     createCandidate.mutate(payload, {

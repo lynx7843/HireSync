@@ -78,6 +78,14 @@ export default function HireSyncCandidateProfile() {
                           </a>
                         </span>
                       )}
+                      {candidate.portfolio_url && (
+                        <span className="flex items-center gap-2 text-[#7A1315]">
+                          <Link2 size={16} />
+                          <a href={candidate.portfolio_url} className="hover:underline" target="_blank" rel="noreferrer">
+                            {candidate.portfolio_url.replace(/^https?:\/\//, "")}
+                          </a>
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
