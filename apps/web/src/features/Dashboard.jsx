@@ -6,6 +6,44 @@ import StatusBadge from "../components/StatusBadge";
 
 const PIPELINE_STAGES = ["applied", "screening", "interview", "offer", "hired"];
 
+function toCsvField(value) {
+  const str = String(value ?? "");
+  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+}
+
+function downloadDashboardReport(data) {
+  const rows = [
+    ["Metric", "Value"],
+    ["Total Candidates", data.totalCandidates],
+    ["Total Applications", data.totalApplications],
+    ["Hired This Month", data.hiredThisMonth],
+    ["Rejection Rate", `${data.rejectionRate}%`],
+    [],
+    ["Pipeline Stage", "Count"],
+    ...PIPELINE_STAGES.map((stage) => {
+      const entry = data.statusDistribution.find((s) => s.status === stage);
+      return [statusLabel(stage), entry?._count.status || 0];
+    }),
+    [],
+    ["Candidate Name", "Role", "Status", "Date"],
+    ...data.latestApplications.map((a) => [
+      a.candidate.name,
+      a.job_title,
+      a.status,
+      formatDate(a.created_at),
+    ]),
+  ];
+
+  const csv = rows.map((row) => row.map(toCsvField).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `hiresync-report-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function HireSyncDashboard() {
   const { data, isPending, isError, error } = useDashboard();
 
@@ -55,9 +93,10 @@ export default function HireSyncDashboard() {
             <p className="mt-2 text-neutral-500">High-level metrics and pipeline status.</p>
           </div>
           <button
-            disabled
-            title="Coming soon"
-            className="cursor-not-allowed bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white opacity-50"
+            type="button"
+            onClick={() => downloadDashboardReport(data)}
+            disabled={!data}
+            className="bg-[#7A1315] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Generate Report
           </button>
