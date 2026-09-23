@@ -32,40 +32,49 @@ export async function candidateRoutes(server: FastifyInstance) {
         search: z.string().optional(),
         status: ApplicationStatusEnum.optional(),
         location: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        pageSize: z.coerce.number().int().min(1).max(100).default(25),
       })
     }
   }, async (request, reply) => {
-    const { search, status, location } = request.query;
+    const { search, status, location, page, pageSize } = request.query;
 
-    const candidates = await prisma.candidate.findMany({
-      where: {
-        deleted_at: null,
-        ...(location ? { location: { contains: location, mode: 'insensitive' } } : {}),
-        ...(status ? { applications: { some: { status, deleted_at: null } } } : {}),
-        ...(search ? {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
-            { location: { contains: search, mode: 'insensitive' } }
-          ]
-        } : {})
-      },
-      include: {
-        applications: {
-          // The list renders this one row as the candidate's role and status.
-          // When filtering by status, narrow it the same way the `some` filter
-          // above does, so the badge shown is the application that matched
-          // rather than an unrelated newer one reading "Applied".
-          where: { deleted_at: null, ...(status ? { status } : {}) },
-          orderBy: { created_at: 'desc' },
-          take: 1,
-          select: { job_title: true, status: true }
-        }
-      },
-      orderBy: { created_at: 'desc' }
-    });
+    const where = {
+      deleted_at: null,
+      ...(location ? { location: { contains: location, mode: 'insensitive' as const } } : {}),
+      ...(status ? { applications: { some: { status, deleted_at: null } } } : {}),
+      ...(search ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { email: { contains: search, mode: 'insensitive' as const } },
+          { location: { contains: search, mode: 'insensitive' as const } }
+        ]
+      } : {})
+    };
 
-    return reply.send(candidates);
+    const [candidates, total] = await prisma.$transaction([
+      prisma.candidate.findMany({
+        where,
+        include: {
+          applications: {
+            // The list renders this one row as the candidate's role and status.
+            // When filtering by status, narrow it the same way the `some` filter
+            // above does, so the badge shown is the application that matched
+            // rather than an unrelated newer one reading "Applied".
+            where: { deleted_at: null, ...(status ? { status } : {}) },
+            orderBy: { created_at: 'desc' },
+            take: 1,
+            select: { job_title: true, status: true }
+          }
+        },
+        orderBy: { created_at: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.candidate.count({ where }),
+    ]);
+
+    return reply.send({ data: candidates, total, page, pageSize });
   });
 
   app.get('/candidates/:id', {

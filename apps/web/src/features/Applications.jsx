@@ -4,13 +4,16 @@ import { Search, MoreHorizontal, Plus } from "lucide-react";
 import { useApplications } from "../api/queries";
 import { formatDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
+import Pagination from "../components/Pagination";
 
 const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
+const PAGE_SIZE = 25;
 
 export default function HireSyncApplications() {
   const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   // Debounce the search box so we don't hit the API on every keystroke.
   useEffect(() => {
@@ -18,7 +21,18 @@ export default function HireSyncApplications() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const { data: applications, isPending, isError, error } = useApplications({ search, status });
+  // Any filter change invalidates the current page.
+  useEffect(() => {
+    setPage(1);
+  }, [search, status]);
+
+  const { data: result, isPending, isError, error } = useApplications({
+    search,
+    status,
+    page,
+    pageSize: PAGE_SIZE,
+  });
+  const applications = result?.data ?? [];
 
   return (
     <div className="min-h-screen bg-white font-sans text-black">
@@ -152,14 +166,13 @@ export default function HireSyncApplications() {
             </tbody>
           </table>
 
-          {/* Footer: results count */}
-          {!isPending && !isError && (
-            <div className="flex items-center justify-between border-t border-neutral-300 px-6 py-4">
-              <p className="text-sm text-neutral-600">
-                Showing <span className="font-bold text-black">{applications.length}</span> of{" "}
-                <span className="font-bold text-black">{applications.length}</span> results
-              </p>
-            </div>
+          {!isPending && !isError && result && (
+            <Pagination
+              page={result.page}
+              pageSize={result.pageSize}
+              total={result.total}
+              onPageChange={setPage}
+            />
           )}
         </div>
       </main>

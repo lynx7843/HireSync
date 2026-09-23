@@ -4,13 +4,16 @@ import { Search, ChevronDown, MoreVertical, Plus, User } from "lucide-react";
 import { useCandidates } from "../api/queries";
 import { initialsFromName } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
+import Pagination from "../components/Pagination";
 
 const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
+const PAGE_SIZE = 25;
 
 export default function HireSyncCandidates() {
   const [searchInput, setSearchInput] = useState("");
   const [statusInput, setStatusInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
+  const [page, setPage] = useState(1);
 
   // Debounce the free-text inputs so we don't hit the API on every keystroke.
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -26,11 +29,19 @@ export default function HireSyncCandidates() {
     return () => clearTimeout(timer);
   }, [locationInput]);
 
-  const { data: candidates, isPending, isError, error } = useCandidates({
+  // Any filter change invalidates the current page.
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusInput, debouncedLocation]);
+
+  const { data: result, isPending, isError, error } = useCandidates({
     search: debouncedSearch,
     status: statusInput,
     location: debouncedLocation,
+    page,
+    pageSize: PAGE_SIZE,
   });
+  const candidates = result?.data ?? [];
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
@@ -194,6 +205,15 @@ export default function HireSyncCandidates() {
                 })}
             </tbody>
           </table>
+
+          {!isPending && !isError && result && (
+            <Pagination
+              page={result.page}
+              pageSize={result.pageSize}
+              total={result.total}
+              onPageChange={setPage}
+            />
+          )}
         </div>
       </main>
     </div>
