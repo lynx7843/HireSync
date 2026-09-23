@@ -6,7 +6,7 @@ A simple applicant tracking system for managing job candidates and their applica
 
 - Dashboard with summary metrics pulled from live data.
 - Candidates directory with live search and filtering by name, status, and location.
-- Add, view, and manage candidate records.
+- Add and view candidate records.
 - Applications list with live search and status filtering.
 - Application detail view to update an application (job, company, date, source, status, notes) or archive it.
 
