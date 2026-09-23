@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
-import { ApplicationStatusEnum, CreateCandidateSchema } from '@hiresync/shared';
+import { ApplicationStatusEnum, CreateCandidateSchema, UpdateCandidateSchema } from '@hiresync/shared';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { prisma } from '../db.js';
@@ -89,5 +89,52 @@ export async function candidateRoutes(server: FastifyInstance) {
     }
 
     return reply.send(candidate);
+  });
+
+  app.patch('/candidates/:id', {
+    schema: {
+      params: z.object({ id: z.uuid() }),
+      body: UpdateCandidateSchema
+    }
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    try {
+      const candidate = await prisma.candidate.update({
+        where: { id, deleted_at: null },
+        data: request.body,
+      });
+      return reply.send(candidate);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        return reply.status(404).send({ error: 'Candidate not found' });
+      }
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        return reply.status(409).send({ error: 'A candidate with this email already exists' });
+      }
+      throw err;
+    }
+  });
+
+  app.delete('/candidates/:id', {
+    schema: {
+      params: z.object({ id: z.uuid() })
+    }
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    try {
+      // Soft delete, matching applications. Already-archived rows 404 like missing ones.
+      await prisma.candidate.update({
+        where: { id, deleted_at: null },
+        data: { deleted_at: new Date() },
+      });
+      return reply.status(204).send();
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        return reply.status(404).send({ error: 'Candidate not found' });
+      }
+      throw err;
+    }
   });
 }
