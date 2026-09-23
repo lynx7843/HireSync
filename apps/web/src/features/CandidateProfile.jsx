@@ -82,10 +82,18 @@ export default function HireSyncCandidateProfile() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <button className="bg-[#7A1315] px-6 py-3 text-sm font-semibold text-white hover:bg-[#5F0F11]">
+                  <button
+                    disabled
+                    title="Coming soon"
+                    className="cursor-not-allowed bg-[#7A1315] px-6 py-3 text-sm font-semibold text-white opacity-50"
+                  >
                     Schedule Interview
                   </button>
-                  <button className="border border-black bg-white px-6 py-3 text-sm font-semibold hover:bg-neutral-100">
+                  <button
+                    disabled
+                    title="Coming soon"
+                    className="cursor-not-allowed border border-black bg-white px-6 py-3 text-sm font-semibold opacity-50"
+                  >
                     Download Resume
                   </button>
                 </div>
