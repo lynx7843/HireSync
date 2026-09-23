@@ -63,6 +63,14 @@ export function createCandidate(data) {
   return mutate("/candidates", "POST", data);
 }
 
+export function updateCandidate(id, data) {
+  return mutate(`/candidates/${id}`, "PATCH", data);
+}
+
+export function deleteCandidate(id) {
+  return mutate(`/candidates/${id}`, "DELETE");
+}
+
 export function createApplication(data) {
   return mutate("/applications", "POST", data);
 }

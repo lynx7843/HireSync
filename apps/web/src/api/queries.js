@@ -6,6 +6,8 @@ import {
   getApplications,
   getApplication,
   createCandidate,
+  updateCandidate,
+  deleteCandidate,
   createApplication,
   updateApplication,
   deleteApplication,
@@ -49,6 +51,28 @@ export function useCreateCandidate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data) => createCandidate(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateCandidate(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => updateCandidate(id, data),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["candidate", id], updated);
+      queryClient.invalidateQueries({ queryKey: ["candidates"] });
+    },
+  });
+}
+
+export function useDeleteCandidate(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteCandidate(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidates"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
