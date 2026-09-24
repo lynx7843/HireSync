@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { getToken, clearToken } from '../../api/client';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -7,6 +8,14 @@ const NAV_LINKS = [
 ];
 
 export default function AppLayout() {
+  const navigate = useNavigate();
+  if (!getToken()) return <Navigate to="/login" replace />;
+
+  const handleSignOut = () => {
+    clearToken();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
       <header className="flex items-center gap-12 border-b border-neutral-200 bg-white px-8 py-5">
@@ -28,6 +37,13 @@ export default function AppLayout() {
             </NavLink>
           ))}
         </nav>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="ml-auto text-sm font-semibold text-[#7A1315] hover:underline"
+        >
+          Sign out
+        </button>
       </header>
 
       {/* Render the specific page based on the route */}
