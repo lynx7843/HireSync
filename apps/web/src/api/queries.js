@@ -86,6 +86,7 @@ export function useCreateApplication() {
     mutationFn: (data) => createApplication(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
@@ -98,6 +99,7 @@ export function useUpdateApplication(id) {
     onSuccess: (updated) => {
       queryClient.setQueryData(["application", id], updated);
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
@@ -109,6 +111,7 @@ export function useDeleteApplication(id) {
     mutationFn: () => deleteApplication(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });

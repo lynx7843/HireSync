@@ -17,7 +17,7 @@ function toDateInputValue(value) {
 export default function HireSyncApplicationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: application, isPending, isError, error } = useApplication(id);
+  const { data: application, isPending, isError, error, refetch, isFetching } = useApplication(id);
   const updateApplication = useUpdateApplication(id);
   const deleteApplication = useDeleteApplication(id);
 
@@ -77,8 +77,22 @@ export default function HireSyncApplicationDetail() {
         </Link>
 
         {isError && (
-          <div className="mb-8 border border-[#7A1315] bg-white p-6 text-[#7A1315]">
-            Failed to load application: {error.message}
+          <div className="border border-[#7A1315] bg-white p-10 text-center">
+            <h1 className="text-2xl font-extrabold text-[#7A1315]">Couldn't load this application</h1>
+            <p className="mt-2 text-neutral-500">{error.message}</p>
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="bg-[#7A1315] px-6 py-2 text-sm font-bold text-white disabled:opacity-50"
+              >
+                {isFetching ? "Retrying…" : "Try again"}
+              </button>
+              <Link to="/applications" className="px-6 py-2 text-sm font-semibold text-[#7A1315] hover:underline">
+                Back to applications
+              </Link>
+            </div>
           </div>
         )}
 

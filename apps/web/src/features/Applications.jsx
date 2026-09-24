@@ -35,7 +35,7 @@ export default function HireSyncApplications() {
   const applications = result?.data ?? [];
 
   return (
-    <div className="min-h-screen bg-white font-sans text-black">
+    <div className="min-h-screen bg-neutral-50 font-sans text-black">
       <main className="mx-auto max-w-[1600px] px-8 py-10">
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between">
