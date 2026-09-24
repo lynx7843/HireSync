@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider, Navigate, useRouteError, isRouteEr
 import AppLayout from './components/layout/AppLayout';
 
 // Import your existing skeletons
+import HireSyncLogin from './features/Login';
 import HireSyncDashboard from './features/Dashboard';
 import HireSyncCandidates from './features/Candidates';
 import HireSyncAddCandidate from './features/AddCandidate';
@@ -27,6 +28,7 @@ function RouteError() {
 }
 
 const router = createBrowserRouter([
+  { path: "/login", element: <HireSyncLogin />, errorElement: <RouteError /> },
   {
     path: "/",
     element: <AppLayout />,

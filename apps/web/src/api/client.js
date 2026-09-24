@@ -1,7 +1,61 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
+const TOKEN_KEY = "hiresync_token";
+
+export function getToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setToken(token) {
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // storage unavailable; user will need to sign in again next visit
+  }
+}
+
+export function clearToken() {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // nothing to clear
+  }
+}
+
+/** @returns {Record<string, string>} */
+function authHeaders() {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// An expired or missing token means every request will fail; send the user to sign in again.
+function handleUnauthorized(res) {
+  if (res.status !== 401) return;
+  clearToken();
+  if (window.location.pathname !== "/login") window.location.assign("/login");
+}
+
+export async function login(email, password) {
+  const res = await fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(data?.error || `Sign in failed with status ${res.status}`);
+  }
+  setToken(data.token);
+  return data;
+}
+
 async function request(path) {
-  const res = await fetch(`${BASE_URL}${path}`);
+  const res = await fetch(`${BASE_URL}${path}`, { headers: authHeaders() });
+  handleUnauthorized(res);
   if (!res.ok) {
     throw new Error(`Request to ${path} failed with status ${res.status}`);
   }
@@ -11,9 +65,10 @@ async function request(path) {
 async function mutate(path, method, body) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+  handleUnauthorized(res);
   if (!res.ok) {
     let message = `Request to ${path} failed with status ${res.status}`;
     try {
