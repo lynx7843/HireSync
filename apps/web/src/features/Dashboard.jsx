@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useDashboard } from "../api/queries";
 import { formatDate, statusLabel } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const PIPELINE_STAGES = ["applied", "screening", "interview", "offer", "hired"];
 
@@ -64,6 +65,7 @@ export default function HireSyncDashboard() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
+      <LoadingOverlay show={isPending} />
       <main className="mx-auto max-w-[1600px] px-8 py-10">
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between border-b border-neutral-300 pb-6">

@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, MapPin, Link2, ChevronRight, User } from "lucide-react
 import { useCandidate, useUpdateCandidate, useDeleteCandidate } from "../api/queries";
 import { formatDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 export default function HireSyncCandidateProfile() {
   const { id } = useParams();
@@ -60,6 +61,7 @@ export default function HireSyncCandidateProfile() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
+      <LoadingOverlay show={isPending} />
       {/* Top Nav */}
       <header className="flex items-center justify-end border-b border-neutral-200 bg-white px-8 py-5">
         <Link to="/candidates" className="text-sm font-semibold text-[#7A1315] hover:underline">
