@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { User, IdCard, Link2, MapPin } from "lucide-react";
 import { useCreateCandidate } from "../api/queries";
 
@@ -56,22 +56,6 @@ export default function HireSyncAddCandidate() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-black">
-      {/* Top Nav */}
-      <header className="flex items-center gap-10 border-b border-neutral-200 px-6 py-4">
-        <div className="text-base font-bold tracking-wide">HIRESYNC</div>
-        <nav className="flex items-center gap-8">
-          <Link to="/dashboard" className="text-base text-black hover:opacity-70">
-            Dashboard
-          </Link>
-          <Link to="/candidates" className="text-base font-semibold text-black hover:opacity-70">
-            Candidates
-          </Link>
-          <Link to="/applications" className="text-base text-black hover:opacity-70">
-            Applications
-          </Link>
-        </nav>
-      </header>
-
       <main className="mx-auto max-w-3xl px-8 py-8">
       <form onSubmit={handleSubmit}>
         {/* Header row */}

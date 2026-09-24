@@ -36,24 +36,6 @@ export default function HireSyncApplications() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-black">
-      {/* Top Nav */}
-      <header className="flex items-center gap-12 border-b-2 border-[#7A1315] px-8 py-5">
-        <div className="text-[26px] font-extrabold tracking-wide text-[#7A1315]">
-          HIRESYNC
-        </div>
-        <nav className="flex items-center gap-10">
-          <Link to="/dashboard" className="text-[15px] font-medium text-neutral-500 hover:text-black">
-            Dashboard
-          </Link>
-          <Link to="/candidates" className="text-[15px] font-medium text-neutral-500 hover:text-black">
-            Candidates
-          </Link>
-          <Link to="/applications" className="text-[15px] font-bold text-black underline underline-offset-8">
-            Applications
-          </Link>
-        </nav>
-      </header>
-
       <main className="mx-auto max-w-[1600px] px-8 py-10">
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between">
