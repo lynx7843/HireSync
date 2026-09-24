@@ -45,27 +45,6 @@ export default function HireSyncCandidates() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
-      {/* Top Nav */}
-      <header className="flex items-center gap-12 border-b border-neutral-200 bg-white px-8 py-5">
-        <div className="text-[26px] font-extrabold tracking-wide text-[#7A1315]">
-          HIRESYNC
-        </div>
-        <nav className="flex items-center gap-10">
-          <Link to="/dashboard" className="text-[15px] font-medium text-neutral-500 hover:text-black">
-            Dashboard
-          </Link>
-          <Link
-            to="/candidates"
-            className="border-b-2 border-[#7A1315] pb-2 text-[15px] font-semibold text-[#7A1315]"
-          >
-            Candidates
-          </Link>
-          <Link to="/applications" className="text-[15px] font-medium text-neutral-500 hover:text-black">
-            Applications
-          </Link>
-        </nav>
-      </header>
-
       <main className="mx-auto max-w-[1600px] px-8 py-10">
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between">

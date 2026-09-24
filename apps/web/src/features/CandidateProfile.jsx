@@ -61,10 +61,7 @@ export default function HireSyncCandidateProfile() {
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
       {/* Top Nav */}
-      <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-8 py-5">
-        <div className="text-[26px] font-extrabold tracking-wide text-[#7A1315]">
-          HIRESYNC
-        </div>
+      <header className="flex items-center justify-end border-b border-neutral-200 bg-white px-8 py-5">
         <Link to="/candidates" className="text-sm font-semibold text-[#7A1315] hover:underline">
           Close Profile
         </Link>

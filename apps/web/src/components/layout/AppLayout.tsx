@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Outlet, useNavigation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigation } from 'react-router-dom';
+
+const NAV_LINKS = [
+  { to: '/dashboard', label: 'Dashboard' },
+  { to: '/candidates', label: 'Candidates' },
+  { to: '/applications', label: 'Applications' },
+];
 
 export default function AppLayout() {
   const navigation = useNavigation();
@@ -19,11 +25,27 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black relative">
-      {/* NOTE: In a full refactor, you would extract your custom headers 
-        from the individual files and put a unified global header here using <Link> tags.
-        For this phase, we will just render your existing pages exactly as they are via Outlet.
-      */}
-      
+      <header className="flex items-center gap-12 border-b border-neutral-200 bg-white px-8 py-5">
+        <div className="text-[26px] font-extrabold tracking-wide text-[#7A1315]">
+          HIRESYNC
+        </div>
+        <nav className="flex items-center gap-10">
+          {NAV_LINKS.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                isActive
+                  ? 'border-b-2 border-[#7A1315] pb-2 text-[15px] font-semibold text-[#7A1315]'
+                  : 'text-[15px] font-medium text-neutral-500 hover:text-black'
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </header>
+
       {/* Global Loading Overlay */}
       {isNavigating && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
