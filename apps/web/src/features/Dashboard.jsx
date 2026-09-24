@@ -68,7 +68,7 @@ export default function HireSyncDashboard() {
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between border-b border-neutral-300 pb-6">
           <div>
-            <h1 className="text-5xl font-extrabold tracking-tight">Dashboard Overview</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">Dashboard Overview</h1>
             <p className="mt-2 text-neutral-500">High-level metrics and pipeline status.</p>
           </div>
           <button

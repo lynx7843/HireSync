@@ -56,12 +56,12 @@ export default function HireSyncAddApplication() {
     !createApplication.isPending;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-black">
+    <div className="min-h-screen bg-neutral-50 font-sans text-black">
       <main className="mx-auto max-w-3xl px-8 py-8">
         {/* Header row */}
         <div className="mb-0 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-medium">Log New Application</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">Log New Application</h1>
             <p className="mt-1 text-neutral-500">Record a candidate's application for a role.</p>
           </div>
           <div className="flex items-center gap-3">

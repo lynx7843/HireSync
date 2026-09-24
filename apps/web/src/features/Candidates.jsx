@@ -49,7 +49,7 @@ export default function HireSyncCandidates() {
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-5xl font-extrabold tracking-tight">Candidates Directory</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">Candidates Directory</h1>
             <p className="mt-2 text-neutral-500">Manage and filter executive candidates.</p>
           </div>
           <Link
