@@ -5,6 +5,7 @@ import { useApplications } from "../api/queries";
 import { formatDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 import Pagination from "../components/Pagination";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
 const PAGE_SIZE = 25;
@@ -36,6 +37,7 @@ export default function HireSyncApplications() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
+      <LoadingOverlay show={isPending} />
       <main className="mx-auto max-w-[1600px] px-8 py-10">
         {/* Header row */}
         <div className="mb-8 flex items-start justify-between">

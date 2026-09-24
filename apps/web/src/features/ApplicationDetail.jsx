@@ -4,6 +4,7 @@ import { ArrowLeft, User, ChevronsUpDown, Calendar } from "lucide-react";
 import { useApplication, useUpdateApplication, useDeleteApplication } from "../api/queries";
 import { formatDateTime } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const STATUS_OPTIONS = ["applied", "screening", "interview", "offer", "hired", "rejected"];
 
@@ -66,6 +67,7 @@ export default function HireSyncApplicationDetail() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-black">
+      <LoadingOverlay show={isPending} />
       <main className="mx-auto max-w-[1600px] px-8 py-8">
         {/* Back link */}
         <Link
