@@ -85,6 +85,10 @@ The frontend expects the API at `http://localhost:3001/api`. To override, set `V
 
 ## API Overview
 
+Every route except `POST /api/auth/login` requires an `Authorization: Bearer <token>` header.
+
+- `POST /api/auth/login` - exchange `email` and `password` for a token (returns `token`, `expires_at`, `user`; repeated failures return 429)
+- `GET  /api/auth/me` - return the user for the current token
 - `GET  /api/dashboard` - summary metrics
 - `GET  /api/candidates` - list candidates (search, status, location filters)
 - `POST /api/candidates` - create a candidate
@@ -96,3 +100,5 @@ The frontend expects the API at `http://localhost:3001/api`. To override, set `V
 - `GET  /api/applications/:id` - application detail
 - `PATCH  /api/applications/:id` - update an application
 - `DELETE /api/applications/:id` - delete an application
+
+Deletes are soft deletes: the row stays in the database with `deleted_at` set and is hidden from every endpoint. Deleting an already-deleted record returns 404. Deleting a candidate also hides their applications from the applications list and the dashboard.
