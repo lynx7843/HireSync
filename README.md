@@ -59,12 +59,15 @@ packages/
    - Set either `AUTH_PASSWORD_HASH` or `AUTH_PASSWORD`. Use the plaintext `AUTH_PASSWORD` for local development only.
    - Optional: `AUTH_TOKEN_TTL` (seconds, default 28800), `PORT` (default 3001), `HOST` (default 127.0.0.1), `CORS_ORIGINS` (comma-separated).
 
-4. Apply the schema and seed sample data:
+4. Generate the Prisma client, then apply the schema and seed sample data:
 
    ```
+   npx prisma generate --schema apps/api/prisma/schema.prisma
    npm run db:migrate
    npm run db:seed
    ```
+
+   Skipping `prisma generate` makes the seed fail with `Cannot find module '.prisma/client/default'`.
 
 ## Running
 
