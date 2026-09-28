@@ -46,11 +46,18 @@ packages/
    docker compose up -d
    ```
 
-3. Create `apps/api/.env` with the database connection string:
+3. Create `apps/api/.env` by copying `apps/api/.env.example` (`.env` is gitignored, so a fresh clone has none). The API will not start without it:
 
    ```
    DATABASE_URL="postgresql://dev:dev@localhost:5433/candidate_tracker"
+   JWT_SECRET="replace-with-a-random-string-of-at-least-32-characters"
+   AUTH_EMAIL="you@example.com"
+   AUTH_PASSWORD="local-dev-password"
    ```
+
+   - `DATABASE_URL`, `JWT_SECRET` (32+ characters) and `AUTH_EMAIL` are required.
+   - Set either `AUTH_PASSWORD_HASH` or `AUTH_PASSWORD`. Use the plaintext `AUTH_PASSWORD` for local development only.
+   - Optional: `AUTH_TOKEN_TTL` (seconds, default 28800), `PORT` (default 3001), `HOST` (default 127.0.0.1), `CORS_ORIGINS` (comma-separated).
 
 4. Apply the schema and seed sample data:
 
