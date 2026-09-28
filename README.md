@@ -49,6 +49,12 @@ packages/
 
    With the older standalone Compose binary, use `docker-compose up -d` instead.
 
+   The command returns before Postgres is ready to accept connections (the compose file has no healthcheck), so on a cold start `db:migrate` can fail if run straight away. Wait until this prints `accepting connections`:
+
+   ```
+   docker compose exec postgres pg_isready -U dev
+   ```
+
 3. Create `apps/api/.env` by copying `apps/api/.env.example` (`.env` is gitignored, so a fresh clone has none). The API will not start without it:
 
    ```
