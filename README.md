@@ -46,6 +46,8 @@ packages/
    docker compose up -d
    ```
 
+   With the older standalone Compose binary, use `docker-compose up -d` instead.
+
 3. Create `apps/api/.env` by copying `apps/api/.env.example` (`.env` is gitignored, so a fresh clone has none). The API will not start without it:
 
    ```
