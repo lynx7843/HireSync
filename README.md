@@ -108,3 +108,7 @@ Every route except `POST /api/auth/login` requires an `Authorization: Bearer <to
 - `DELETE /api/applications/:id` - delete an application
 
 Deletes are soft deletes: the row stays in the database with `deleted_at` set and is hidden from every endpoint. Deleting an already-deleted record returns 404. Deleting a candidate also hides their applications from the applications list and the dashboard.
+
+## Preview
+
+![HireSync](img/hiresync.jpg)
